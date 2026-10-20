@@ -22,7 +22,7 @@ const BASE = [
   [[0,0],[1,0],[2,0],[2,1],[2,2]],
   [[0,0],[1,1]]
 ];
-const CAT = ['s','s','s','m','l','m','l','l','s','m','m','m','l','s'];
+const CAT = ['x','s','s','m','l','m','l','l','s','m','m','m','l','x'];   // x: filler (single, diagonal pair), only on a crowded board
 function norm(cells){
   const mr=Math.min(...cells.map(c=>c[0])), mc=Math.min(...cells.map(c=>c[1]));
   return cells.map(([r,c])=>[r-mr,c-mc]).sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
@@ -154,7 +154,8 @@ export function makeLevel(level,fails,salt,type=levelType(level)){
 function weightFor(s,d,fill){
   const crowd=Math.max(0,fill-.45);
   const cat=CAT[s.fam];
-  const w=cat==='s'?2-1.1*d+4*crowd:cat==='m'?2.2:.5+1.1*d-2.2*crowd;
+  if(cat==='x'&&!crowd) return 0;
+  const w=cat==='s'||cat==='x'?2-1.1*d+4*crowd:cat==='m'?2.2:.5+1.1*d-2.2*crowd;
   return Math.max(.05,w)*s.share;
 }
 export const activeGems=S=>S.goal.type==='score'?[]:S.goal.targets.filter(t=>S.got[t.g]<t.need).map(t=>t.g);

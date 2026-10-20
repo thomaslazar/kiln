@@ -118,6 +118,14 @@ test('every gem goal tray has at least one gem while colours are open', () => {
     for (let k = 0; k < 300; k++) assert.ok(deal(S).some(p => p.g.some(Boolean)), `level ${lv} deal ${k}`);
   }
 });
+test('single and diagonal pieces only come when the board is crowded', () => {
+  const filler = p => [0, 13].includes(SHAPES[p.s].fam);
+  const S = startState(20, 0, 0, 'score'); S.color.fill(0);
+  for (let k = 0; k < 300; k++) assert.ok(!deal(S).some(filler), `empty board deal ${k}`);
+  for (let i = 0; i < 64; i++) S.color[i] = (Math.floor(i / 8) + i % 8) % 3 ? 1 : 0;   // ~2/3 full, no full line
+  let seen = 0; for (let k = 0; k < 300; k++) if (deal(S).some(filler)) seen++;
+  assert.ok(seen > 0);
+});
 test('deal is deterministic', () => {
   const a = startState(44, 2, 1), b = startState(44, 2, 1);
   assert.deepEqual(a.tray, b.tray); assert.deepEqual(deal(a), deal(b));

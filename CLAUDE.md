@@ -39,7 +39,9 @@ the rest:
 - **random**: `mulberry32` seeded PRNG and an integer `hash`. Everything random is seeded,
   so a level is reproducible from `(level, fails, salt)`.
 - **shapes**: `BASE` lists piece families; `variants()` generates all unique rotations and
-  mirrors. `CAT` tags each family as small, medium or large (`s`/`m`/`l`) for weighting.
+  mirrors. `CAT` tags each family as small, medium or large (`s`/`m`/`l`) for weighting,
+  or filler (`x`: single and diagonal pair), which is only dealt once the board is more
+  than 45% full (or by the fallbacks).
   `share` spreads a family's weight across its variants so families with many rotations
   are not overrepresented.
 - **board helpers**: the board is a flat array of 64 numbers. `0` empty, `1..5` glaze
