@@ -216,3 +216,12 @@ export function resolveMove(S,i,r,c){
 }
 export function clearCells(S,cells){for(const k of cells)S.color[k]=S.gem[k]=0}
 export const won=S=>S.goal.type==='score'?S.score>=S.goal.need:S.goal.targets.every(t=>S.got[t.g]>=t.need);
+
+/* ---------- saves ---------- */
+const int=(v,d)=>Number.isInteger(v)&&v>=0?v:d;
+export const fromV1=o=>({level:Math.max(1,int(o&&o.level,1)),fails:0,salt:0,best:Math.max(1,int(o&&o.best,1)),lines:int(o&&o.lines,0)});
+export function validSave(s){
+  if(!s||!TYPES.includes(s.type)||!s.goal||!Array.isArray(s.color)||s.color.length!==64||!Array.isArray(s.gem)||s.gem.length!==64) return false;
+  if(!Array.isArray(s.got)||s.got.length!==6||!Array.isArray(s.tray)||s.tray.length!==3) return false;
+  return s.tray.every(t=>t===null||(t&&Number.isInteger(t.s)&&t.s>=0&&t.s<SHAPES.length&&Array.isArray(t.g)&&t.g.length===SHAPES[t.s].n));
+}

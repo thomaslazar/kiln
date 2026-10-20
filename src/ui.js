@@ -1,6 +1,6 @@
-import {N,SHAPES,occOf,fits,fullLines,anyFit,makeLevel,deal} from './core.js';
+import {N,SHAPES,occOf,fits,fullLines,anyFit,startState,deal,resolveMove,clearCells,won,fromV1,validSave} from './core.js';
 
-const KEY = 'kiln-v1';
+const KEY = 'kiln-v2', OLD = 'kiln-v1';
 const $ = s => document.querySelector(s);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -9,17 +9,17 @@ let S;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function load(){
   try{
-    const raw=localStorage.getItem(KEY); if(!raw) return null;
-    const s=JSON.parse(raw);
-    if(!s||!Array.isArray(s.color)||s.color.length!==64||!Array.isArray(s.tray)) return null;
-    if(s.tray.some(t=>t&&(t.s<0||t.s>=SHAPES.length))) return null;
-    return s;
+    const s=JSON.parse(localStorage.getItem(KEY));
+    if(validSave(s)) return s;
+  }catch(e){}
+  try{
+    const raw=localStorage.getItem(OLD); if(!raw) return null;
+    localStorage.removeItem(OLD);
+    return fromV1(JSON.parse(raw));   // progress only, caller starts the level
   }catch(e){return null}
 }
 function startLevel(){
-  const L=makeLevel(S.level,S.fails,S.salt||0);
-  Object.assign(S,{seed:L.seed,d:L.d,color:L.color,gem:L.gem,goal:L.goal,progress:0,deals:0,tray:[null,null,null]});
-  S.tray=deal(S);
+  Object.assign(S,startState(S.level,S.fails,S.salt));
   save(); render();
 }
 
@@ -28,38 +28,40 @@ const boardEl=$('#board'), cellEls=[];
 for(let i=0;i<64;i++){const c=document.createElement('div');c.className='cell';c.appendChild(Object.assign(document.createElement('div'),{className:'t'}));boardEl.appendChild(c);cellEls.push(c)}
 const slots=[...document.querySelectorAll('.slot')];
 
+const gemAttr=(el,g)=>{el.classList.toggle('gem',!!g);if(g)el.dataset.gem=g;else delete el.dataset.gem};
 function renderCell(i){
   const el=cellEls[i], v=S.color[i];
-  el.className='cell'+(v===9?' f stone':v?' f':'')+(S.gem[i]?' gem':'');
-  if(v&&v!==9) el.style.setProperty('--c',`var(--g${v})`); else el.style.removeProperty('--c');
+  el.className='cell'+(v?' f':'');
+  gemAttr(el,S.gem[i]);
+  if(v) el.style.setProperty('--c',`var(--g${v})`); else el.style.removeProperty('--c');
 }
 function render(){
   for(let i=0;i<64;i++) renderCell(i);
   $('#lvl').textContent=S.level;
-  const g=S.goal, done=Math.min(S.progress,g.need);
-  $('#goalText').textContent=g.type==='lines'?`Clear ${g.need} lines`:`Free ${g.need} gems`;
-  $('#goalCount').textContent=`${done} / ${g.need}`;
-  const bar=$('#bar'), gems=$('#gems');
-  if(g.type==='lines'){
-    bar.hidden=false; gems.hidden=true;
-    bar.firstElementChild.style.width=(100*done/g.need)+'%';
+  const g=S.goal, bar=$('#bar'), chips=$('#gems');
+  if(g.type==='score'){
+    $('#goalText').textContent=`Reach ${g.need} points`;
+    $('#goalCount').textContent=`${S.score} / ${g.need}`;
+    bar.hidden=false; chips.hidden=true;
+    bar.firstElementChild.style.width=(100*Math.min(1,S.score/g.need))+'%';
   }else{
-    bar.hidden=true; gems.hidden=false;
-    gems.innerHTML=Array.from({length:g.need},(_,k)=>`<i class="${k<done?'on':''}"></i>`).join('');
+    $('#goalText').textContent='Free the gems'; $('#goalCount').textContent='';
+    bar.hidden=true; chips.hidden=false;
+    chips.innerHTML=g.targets.map(t=>`<span class="chip${S.got[t.g]>=t.need?' done':''}"><i data-gem="${t.g}"><b></b></i>${Math.min(S.got[t.g],t.need)} / ${t.need}</span>`).join('');
   }
   $('#hintText').textContent=S.level<=2?'Drag a piece onto the board. Full rows and columns clear.':
-    g.type==='gems'?'Clear the row or column a gem sits in to free it.':'';
+    g.type!=='score'?'Clear a gem’s row or column to free it.':'';
   renderTray();
 }
 function buildPiece(container,p,unit){
   const s=SHAPES[p.s];
   container.style.gridTemplate=`repeat(${s.h},${unit})/repeat(${s.w},${unit})`;
-  for(const [dr,dc] of s.cells){
+  s.cells.forEach(([dr,dc],j)=>{
     const fc=document.createElement('div'); fc.className='fcell';
-    fc.style.gridArea=`${dr+1}/${dc+1}`; fc.style.setProperty('--c',`var(--g${p.c})`);
+    fc.style.gridArea=`${dr+1}/${dc+1}`; gemAttr(fc,p.g[j]); fc.style.setProperty('--c',`var(--g${p.c})`);
     fc.appendChild(Object.assign(document.createElement('div'),{className:'t'}));
     container.appendChild(fc);
-  }
+  });
 }
 function renderTray(){
   const occ=occOf(S.color);
@@ -83,10 +85,10 @@ function showGhost(){
   clearGhost();
   if(!drag.ok) return;
   const {s,p,r,c}=drag, o=occOf(S.color);
-  for(const [dr,dc] of s.cells){
-    const el=cellEls[(r+dr)*N+c+dc]; el.classList.add('ghost'); el.style.setProperty('--c',`var(--g${p.c})`);
+  s.cells.forEach(([dr,dc],j)=>{
+    const el=cellEls[(r+dr)*N+c+dc]; el.classList.add('ghost'); gemAttr(el,p.g[j]); el.style.setProperty('--c',`var(--g${p.c})`);
     o[(r+dr)*N+c+dc]=1;
-  }
+  });
   const {rows,cols}=fullLines(o);
   rows.forEach(rr=>{for(let cc=0;cc<N;cc++)cellEls[rr*N+cc].classList.add('hint')});
   cols.forEach(cc=>{for(let rr=0;rr<N;rr++)cellEls[rr*N+cc].classList.add('hint')});
@@ -130,45 +132,37 @@ function toast(text){
   const t=$('#toast'); t.textContent=text; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
 }
 function placePiece(i,r,c){
-  const p=S.tray[i], s=SHAPES[p.s], placed=[];
-  for(const [dr,dc] of s.cells){const k=(r+dr)*N+c+dc;S.color[k]=p.c;placed.push(k)}
-  S.tray[i]=null;
-  const {rows,cols}=fullLines(occOf(S.color));
-  const clr=new Set();
-  rows.forEach(rr=>{for(let cc=0;cc<N;cc++)clr.add(rr*N+cc)});
-  cols.forEach(cc=>{for(let rr=0;rr<N;rr++)clr.add(rr*N+cc)});
-  let gems=0; clr.forEach(k=>{if(S.gem[k])gems++});
-  const nl=rows.length+cols.length;
+  const m=resolveMove(S,i,r,c), nl=m.lines;
   S.lines=(S.lines||0)+nl;
-  S.progress+=S.goal.type==='lines'?nl:gems;
   render();
-  placed.forEach(k=>cellEls[k].classList.add('land'));
+  m.placed.forEach(k=>cellEls[k].classList.add('land'));
   buzz(nl?[10,30,10]:8);
   const finish=()=>{
-    clr.forEach(k=>{S.color[k]=0;S.gem[k]=false});
+    clearCells(S,m.cleared);
     if(S.tray.every(t=>!t)) S.tray=deal(S);
     save(); render(); busy=false; afterMove();
   };
-  if(clr.size){
+  if(nl){
     busy=true;
-    clr.forEach(k=>cellEls[k].classList.add('pop'));
-    if(nl>1) toast(nl===2?'Double':nl===3?'Triple':`${nl} lines`);
+    m.cleared.forEach(k=>cellEls[k].classList.add('pop'));
+    if(m.fullClear) toast('Board clear');
+    else if(nl>1) toast(nl===2?'Double':nl===3?'Triple':`${nl} lines`);
+    else if(S.combo>=2) toast(`Combo ${S.combo}`);
     setTimeout(finish,reduced?0:300);
   }else finish();
 }
 function afterMove(){
-  if(S.progress>=S.goal.need){
+  if(won(S)){
     S.best=Math.max(S.best||1,S.level+1); save();
     buzz([20,40,20,40,60]);
-    showSheet(`Level ${S.level} cleared`,
-      S.goal.type==='lines'?`${S.goal.need} lines down.`:`All ${S.goal.need} gems freed.`,
+    showSheet(`Level ${S.level} cleared`,S.goal.type==='score'?`${S.score} points.`:'All gems freed.',
       [{label:'Next level',primary:true,fn:()=>{S.level++;S.fails=0;S.salt=0;startLevel()}}]);
     return;
   }
   const occ=occOf(S.color);
   if(!S.tray.some(t=>t&&anyFit(occ,SHAPES[t.s]))){
     showSheet('No room left',
-      'Every set of pieces could have been placed, so this one’s on the moves. The retry gets a fresh, slightly easier layout.',
+      'Every set of pieces could have been placed, so this one’s on the moves. '+(S.fails+1>=4?'The retry has easier targets.':'Try a fresh layout.'),
       [{label:'Try again',primary:true,fn:()=>{S.fails=(S.fails||0)+1;startLevel()}}]);
   }
 }
@@ -201,5 +195,5 @@ $('#menuBtn').addEventListener('click',()=>{
 
 /* ---------- boot ---------- */
 S=load();
-if(S){render();afterMove()}
-else{S={level:1,fails:0,salt:0,best:1,lines:0};startLevel()}
+if(S&&S.color){render();afterMove()}
+else{S=S||{level:1,fails:0,salt:0,best:1,lines:0};startLevel()}

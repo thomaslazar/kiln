@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { linePoints, resolveMove, clearCells, won, SINGLE, difficulty, levelType, makeLevel, startsEmpty, fullLines, occOf } from '../src/core.js';
+import { linePoints, resolveMove, clearCells, won, SINGLE, difficulty, levelType, makeLevel, startsEmpty, fullLines, occOf, fromV1, validSave } from '../src/core.js';
 
 test('fails 1 to 3 do not ease', () => {
   for (const lv of [10, 37, 60]) for (const f of [1, 2, 3])
@@ -133,3 +133,16 @@ test('gems count for active colours only, capped at need', () => {
   clearCells(S, m.cleared); assert.ok(S.gem.every(g => g === 0));
 });
 test('score win', () => { const S = blank(); S.goal = { type: 'score', need: 300 }; S.score = 299; assert.ok(!won(S)); S.score = 300; assert.ok(won(S)); });
+
+test('v1 save migrates progress only', () => {
+  assert.deepEqual(fromV1({ level: 14, best: 20, lines: 311, color: Array(64).fill(9), tray: [{ s: 3, c: 1 }] }),
+    { level: 14, fails: 0, salt: 0, best: 20, lines: 311 });
+  assert.deepEqual(fromV1(null), { level: 1, fails: 0, salt: 0, best: 1, lines: 0 });
+});
+test('save validation', () => {
+  const S = { level: 5, fails: 0, salt: 0, best: 5, lines: 0, ...startState(5, 0, 0) };
+  assert.ok(validSave(JSON.parse(JSON.stringify(S))));
+  assert.ok(!validSave({ ...S, tray: [{ s: 0, c: 1 }, null, null] }));
+  assert.ok(!validSave({ ...S, gem: [] }));
+  assert.ok(!validSave({ ...S, type: 'lines' }));
+});
