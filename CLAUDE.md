@@ -96,3 +96,15 @@ feel: relaxed, not punishing. Rerun the sim after any change to weights, density
 - No em-dashes in UI copy or docs. Use typographic apostrophes (’) in visible text.
 - Keep everything seeded and deterministic so levels can be reproduced and debugged.
 - Any change that could affect fairness must keep the `solvable` check in `deal()`.
+
+## Git
+
+- Always ask before committing.
+- Commit messages follow Conventional Commits: `type: subject`.
+  - Types: `feat` (new feature), `fix` (bug fix), `docs` (docs only), `test` (tests),
+    `ci` (CI config), `refactor` (no behaviour change), `chore` (maintenance).
+  - Subject: imperative, lowercase, no period, about 72 characters max.
+    Example: `feat: add gem goal to early levels`.
+  - Body (optional): explain why, not what. Wrap at 72 characters.
+- Never add `Co-Authored-By:` or "Generated with Claude Code" lines to commit messages
+  or PR bodies.
