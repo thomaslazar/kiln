@@ -89,10 +89,10 @@ export function symbolSVG(name, style, col, id) {
   const inner = 'transform="translate(12 12) scale(.62) translate(-12 -12)"';
   const svg = body => `<svg viewBox="0 0 24 24" aria-hidden="true">${body}</svg>`;
   switch (style) {
-    case 'jewel': return svg(`<defs><radialGradient id="${id}" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="${col}"/><stop offset="1" stop-color="${col}" stop-opacity=".75"/></radialGradient></defs><path d="${d}" fill="url(#${id})" stroke="rgba(0,0,0,.5)" stroke-width="1.3" ${common}/><circle cx="9" cy="8" r="1.6" fill="#fff"/>`);
-    case 'line': return svg(`<path d="${d}" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="5" ${common}/><path d="${d}" fill="none" stroke="${col}" stroke-width="2.6" ${common}/>`);
-    case 'duotone': return svg(`<path d="${d}" fill="${col}" stroke="rgba(0,0,0,.45)" stroke-width="1.4" ${common}/><path d="${d}" ${inner} fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.2" ${common}/>`);
-    case 'glow': return svg(`<path d="${d}" fill="${col}" style="filter:drop-shadow(0 0 2.5px ${col}) drop-shadow(0 0 1px rgba(0,0,0,.6))" ${common}/>`);
-    default: return svg(`<path d="${d}" fill="${col}" stroke="rgba(0,0,0,.45)" stroke-width="1.4" ${common}/>`);
+    case 'jewel': return svg(`<defs><radialGradient id="${id}" cx="35%" cy="30%" r="75%"><stop offset="0" style="stop-color:#fff"/><stop offset=".35" style="stop-color:${col}"/><stop offset="1" style="stop-color:${col};stop-opacity:.75"/></radialGradient></defs><path d="${d}" style="fill:url(#${id});stroke:rgba(0,0,0,.5)" stroke-width="1.3" ${common}/><circle cx="9" cy="8" r="1.6" style="fill:#fff"/>`);
+    case 'line': return svg(`<path d="${d}" style="fill:none;stroke:rgba(0,0,0,.55)" stroke-width="5" ${common}/><path d="${d}" style="fill:none;stroke:${col}" stroke-width="2.6" ${common}/>`);
+    case 'duotone': return svg(`<path d="${d}" style="fill:${col};stroke:rgba(0,0,0,.45)" stroke-width="1.4" ${common}/><path d="${d}" ${inner} style="fill:none;stroke:rgba(255,255,255,.85)" stroke-width="1.2" ${common}/>`);
+    case 'glow': return svg(`<path d="${d}" style="fill:${col};filter:drop-shadow(0 0 2.5px ${col}) drop-shadow(0 0 1px rgba(0,0,0,.6))" ${common}/>`);
+    default: return svg(`<path d="${d}" style="fill:${col};stroke:rgba(0,0,0,.45)" stroke-width="1.4" ${common}/>`);
   }
 }

@@ -68,7 +68,7 @@ function applyTheme(){
   $('meta[name=theme-color]').content=L.bg;
   return true;
 }
-dark.addEventListener('change',()=>{if(S&&S.color){applyTheme();render()}});
+dark.addEventListener('change',()=>{if(S&&S.color&&!drag){applyTheme();render()}});
 // ponytail: task 4 extends this to (v,gem,r,c,where) for one-colour and pattern looks
 const tileColour=(v,gem)=>`var(--g${gem?safeTile(TH,v-1,gem-1)+1:v})`;
 const gemHTML=g=>symbolSVG(TH.symbols[g-1],TH.style,`var(--gem${g})`,'j'+gemId++);
@@ -110,7 +110,7 @@ function renderChips(){
     return `<span class="chip${n>=t.need?' done':''}" data-t="${t.g}"><i>${gemHTML(t.g)}</i>${n} / ${t.need}</span>`}).join('');
 }
 function flyGems(cells){
-  const gen=flightGen, pitch=cellEls[0].getBoundingClientRect().width, size=pitch*.42;
+  const gen=flightGen, pitch=cellEls[0].getBoundingClientRect().width, size=pitch*.54;
   cells.slice(0,8).forEach((k,n)=>{   // ponytail: cap at 8 flights per move, the rest count at once
     const g=S.gem[k], to=$(`#gems .chip[data-t="${g}"] i`); if(!to) return;
     const a=cellEls[k].getBoundingClientRect(), b=to.getBoundingClientRect();
@@ -123,7 +123,7 @@ function flyGems(cells){
     el.animate([
       {transform:'translate(0,0) scale(1)'},
       {transform:`translate(${dx*.25}px,${dy*.25-pitch}px) scale(1.2)`,offset:.35},
-      {transform:`translate(${dx}px,${dy}px) scale(${13/size})`}
+      {transform:`translate(${dx}px,${dy}px) scale(${15/size})`}
     ],{duration:520,delay:n*45,easing:'cubic-bezier(.45,0,.55,1)',fill:'both'}).onfinish=()=>{
       el.remove(); if(gen!==flightGen) return;
       flying[g]--; renderChips();
