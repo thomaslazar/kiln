@@ -160,15 +160,9 @@ function weightFor(s,d,fill){
   return Math.max(.05,w)*s.share*(s.fam===7?2:1);   // 3x3 doubled: the most satisfying drop
 }
 export const activeGems=S=>S.goal.type==='score'?[]:S.goal.targets.filter(t=>S.got[t.g]<t.need).map(t=>t.g);
-export function deal(S){
-  const rng=mulberry32(hash(S.seed^Math.imul(S.deals+1,2654435761)));
-  S.deals++;
-  const occ=occOf(S.color);
-  const fill=occ.reduce((a,b)=>a+b,0)/64;
-  const weights=SHAPES.map(s=>weightFor(s,S.d,fill));
-  const total=weights.reduce((a,b)=>a+b,0);
-  const pick=()=>{let x=rng()*total;for(let i=0;i<SHAPES.length;i++){x-=weights[i];if(x<=0)return i}return SHAPES.length-1};
-  const wantClear=fill>.4&&rng()<.55+.35*(1-S.d);
+const dealRng=S=>mulberry32(hash(S.seed^Math.imul(++S.deals,2654435761)));
+// Turns shape indices into tray pieces with colours and the level's gems.
+function gemTray(S,rng,set){
   const act=activeGems(S);
   const piece=s=>{
     const n=SHAPES[s].n,g=new Array(n).fill(0);
@@ -177,11 +171,19 @@ export function deal(S){
       for(let k=1+Math.floor(rng()*2);k--;)g[Math.floor(rng()*n)]=act[Math.floor(rng()*act.length)];   // may collide: 1-2 gems
     return {s,c:1+Math.floor(rng()*5),g};
   };
-  const tray=set=>{   // gem goals: never a tray without gems while colours are open
-    const t=set.map(piece);
-    if(act.length&&S.type==='gems'&&!t.some(p=>p.g.some(Boolean))){const p=t[Math.floor(rng()*3)];p.g[Math.floor(rng()*p.g.length)]=act[Math.floor(rng()*act.length)]}
-    return t;
-  };
+  const t=set.map(piece);   // gem goals: never a tray without gems while colours are open
+  if(act.length&&S.type==='gems'&&!t.some(p=>p.g.some(Boolean))){const p=t[Math.floor(rng()*3)];p.g[Math.floor(rng()*p.g.length)]=act[Math.floor(rng()*act.length)]}
+  return t;
+}
+export function deal(S){
+  const rng=dealRng(S);
+  const occ=occOf(S.color);
+  const fill=occ.reduce((a,b)=>a+b,0)/64;
+  const weights=SHAPES.map(s=>weightFor(s,S.d,fill));
+  const total=weights.reduce((a,b)=>a+b,0);
+  const pick=()=>{let x=rng()*total;for(let i=0;i<SHAPES.length;i++){x-=weights[i];if(x<=0)return i}return SHAPES.length-1};
+  const wantClear=fill>.4&&rng()<.55+.35*(1-S.d);
+  const tray=set=>gemTray(S,rng,set);
   for(let a=0;a<40;a++){
     const set=[pick(),pick(),pick()];
     if(wantClear&&a<25&&!set.some(i=>canClear(occ,SHAPES[i]))) continue;
@@ -196,6 +198,35 @@ export function deal(S){
   }
   return tray([SINGLE,SINGLE,SINGLE]);
 }
+// Continue: three pieces that can be placed to clear as many lines as possible (2+ on
+// stuck boards). Beam search: at each step keep the 6 placements that clear most or fill
+// the fullest lines.
+export function rescueTray(S){
+  const rng=dealRng(S);
+  const fullness=o=>{let s=0;for(let i=0;i<N;i++){let r=0,c=0;for(let j=0;j<N;j++){r+=o[i*N+j];c+=o[j*N+i]}s+=r*r+c*c}return s};
+  let best=null;
+  const rec=(o,set,lines)=>{
+    const moves=[];
+    if(set.length<3) SHAPES.forEach((s,i)=>{for(let r=0;r<=N-s.h;r++)for(let c=0;c<=N-s.w;c++){
+      if(!fits(o,s,r,c)) continue;
+      const n=o.slice();for(const [dr,dc] of s.cells) n[(r+dr)*N+c+dc]=1;
+      const f=fullLines(n),l=f.rows.length+f.cols.length;
+      moves.push({i,l,o:l?placeOcc(o,s,r,c):n,h:l*1e4+fullness(n)});
+    }});
+    if(!moves.length){   // tray full, or nothing fits any more: pad with singles
+      const full=[...set,SINGLE,SINGLE,SINGLE].slice(0,3);
+      if(!best||lines>best.lines||(lines===best.lines&&set.length>best.n)) best={set:full,lines,n:set.length};
+      return;
+    }
+    moves.sort((a,b)=>b.h-a.h);
+    for(const m of moves.slice(0,6)) rec(m.o,[...set,m.i],lines+m.l);
+  };
+  rec(occOf(S.color),[],0);
+  return gemTray(S,rng,best.set);
+}
+export const comboContinue=(S,m)=>S.type==='score'&&m.lines>0&&S.combo>0&&S.combo%10===0;   // every 10 in a streak
+export const levelContinue=(level,best)=>level%5===0&&level+1>best;   // every 5th level, first clear only
+export const freeContinue=S=>S.fails>=2&&S.freeLevel!==S.level;   // once per level, from the 3rd attempt
 export function startState(level,fails,salt,type){
   const L=makeLevel(level,fails,salt,type),S={...L,got:[0,0,0,0,0,0],score:0,combo:0,idle:0,deals:0};
   S.tray=deal(S);return S;

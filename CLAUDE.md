@@ -59,6 +59,11 @@ Sections are marked `/* ---------- name ---------- */`.
 - **moves**: `linePoints(n)`, `resolveMove(S, i, r, c)` places, finds lines, updates
   score, combo, idle and `got`, and returns `{placed, cleared, freed, lines, points,
   fullClear}` without emptying cells; `clearCells(S, cells)` empties them; `won(S)`.
+- **continues**: `rescueTray(S)` beam-searches three pieces that clear the most lines
+  (2+ on stuck boards) and adds gems via `gemTray`, the same helper `deal` uses.
+  `comboContinue(S, m)`, `levelContinue(level, best)`, `freeContinue(S)` are the earn and
+  offer rules. `S.continues` (bank, kept across levels) and `S.freeLevel` (level whose free
+  continue was used) are optional in saves.
 - **saves**: `fromV1(old)` keeps `level, best, lines`; `validSave(s)` checks a v2 save.
 
 ## UI (`src/ui.js`)
@@ -76,6 +81,9 @@ Sections are marked `/* ---------- name ---------- */`.
 - `placePiece`: `resolveMove`, freed gems fly to their chips (`flyGems`, at most 8, chip
   counts lag via `flying[]`), clears animate 300 ms, then `clearCells`, new tray when
   empty, `afterMove` checks win and loss. Bonus toasts only in score levels.
+- Continues: every reward calls `earnContinue()`. On a loss with a free or banked
+  continue, `afterMove` previews `rescueTray(S)` in `#sheetExtra` (via `showSheet`'s 4th
+  argument) next to "Try again".
 - Reduced motion: no flights, toasts show statically.
 
 ## Working rules

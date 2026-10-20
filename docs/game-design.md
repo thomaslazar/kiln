@@ -11,8 +11,10 @@ another, each with a small goal.
 2. Endless levels, one after another, each with a small goal.
 3. Fairness: losing should come from the player’s moves, never from the piece dice.
    Every tray of three pieces can be placed in some order.
-4. Nobody gets stuck on one level: from the 4th failed attempt on, each retry has lower
-   targets. The starting blocks never get fewer, they only move.
+4. Nobody gets stuck on one level. Help comes in steps: continues are always on offer
+   when a player has one, a free continue arrives after 2 fails, and from the 4th failed
+   attempt on each retry has lower targets. The starting blocks never get fewer, they
+   only move.
 5. Short, plain UI copy in sentence case.
 6. Relaxed, not punishing. A human loses sometimes; the balance bot wins nearly always.
 
@@ -50,6 +52,23 @@ Five colours, each with its own shape so they read without colour: ruby diamond,
 sapphire circle, emerald triangle, amber star, amethyst hexagon. A gem sits on a tile
 and is freed when that tile clears as part of a full row or column. Freed gems fly from
 the board to their counter in the goal row.
+
+## Continues
+
+When no piece fits, the player can use a continue instead of starting the level again.
+The “No room left” sheet shows the three rescue pieces first, so the choice is informed;
+“Try again” is always there and never costs anything.
+
+- A continue swaps the stuck tray for three rescue pieces. Board, score and gems stay.
+  The rescue pieces are found by search so that they can clear at least 2 lines (as many
+  as possible on a hopeless board). The sheet does not promise this.
+- Continues bank up with no cap and can be used one after another.
+- Earned: +1 for clearing every 5th level the first time (said on the win sheet), +1 for
+  every 10 in a combo streak in score levels (“Continue earned”). New rewards should go
+  through the same earn function.
+- Free: once a level has failed 2 times, one free continue for that level, which does
+  not touch the bank.
+- The menu shows how many continues the player has.
 
 ## Scoring (score levels only)
 

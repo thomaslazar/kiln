@@ -1,4 +1,5 @@
-import {N,SHAPES,occOf,fits,fullLines,anyFit,startState,deal,resolveMove,clearCells,won,fromV1,validSave,difficulty} from './core.js';
+import {N,SHAPES,occOf,fits,fullLines,anyFit,startState,deal,resolveMove,clearCells,won,fromV1,validSave,difficulty,
+  rescueTray,comboContinue,levelContinue,freeContinue} from './core.js';
 
 const KEY = 'kiln-v2', OLD = 'kiln-v1';
 const $ = s => document.querySelector(s);
@@ -187,6 +188,7 @@ function toast(text){
 function placePiece(i,r,c){
   const m=resolveMove(S,i,r,c), nl=m.lines;
   S.lines=(S.lines||0)+nl;
+  if(comboContinue(S,m)) earnContinue();
   if(!reduced) flyGems(m.freed);
   render();
   if(!reduced) m.freed.slice(0,8).forEach(k=>gemAttr(cellEls[k],0));   // the flying copy replaces the tile's gem
@@ -209,26 +211,44 @@ function placePiece(i,r,c){
     setTimeout(finish,reduced?0:300);
   }else finish();
 }
+// Every way of earning a continue goes through here.
+function earnContinue(quiet){
+  S.continues=(S.continues||0)+1;
+  if(!quiet) setTimeout(()=>toast(t('continueEarned')),reduced?0:700);   // after any line toast
+}
 function afterMove(){
   if(won(S)){
+    const earned=levelContinue(S.level,S.best||1);
+    if(earned) earnContinue(true);   // said on the win sheet instead
     S.best=Math.max(S.best||1,S.level+1); save();
     buzz([20,40,20,40,60]);
-    showSheet(t('wonTitle',{n:S.level}),S.goal.type==='score'?t('wonScore',{n:S.score}):t('wonGems'),
+    showSheet(t('wonTitle',{n:S.level}),(S.goal.type==='score'?t('wonScore',{n:S.score}):t('wonGems'))+(earned?' '+t('wonContinue'):''),
       [{label:t('nextLevel'),primary:true,fn:()=>{S.level++;S.fails=0;S.salt=0;startLevel()}}]);
     return;
   }
   const occ=occOf(S.color);
   if(!S.tray.some(t=>t&&anyFit(occ,SHAPES[t.s]))){
-    showSheet(t('lostTitle'),
-      t('lostText')+' '+(S.fails+1>=4&&difficulty(S.level,S.fails+1)<S.d?t('lostEasier'):t('lostFresh')),
-      [{label:t('tryAgain'),primary:true,fn:()=>{S.fails=(S.fails||0)+1;startLevel()}}]);
+    const retry={label:t('tryAgain'),fn:()=>{S.fails=(S.fails||0)+1;startLevel()}};
+    const text=t('lostText')+' '+(S.fails+1>=4&&difficulty(S.level,S.fails+1)<S.d?t('lostEasier'):t('lostFresh'));
+    const free=freeContinue(S), bank=S.continues||0;
+    if(!free&&!bank) return showSheet(t('lostTitle'),text,[{...retry,primary:true}]);
+    const rescue=rescueTray(S);   // shown before the player decides
+    const preview=rescue.map(p=>{const pc=document.createElement('div');pc.className='piece';buildPiece(pc,p,'16px');return pc});
+    showSheet(t('lostTitle'),text,[
+      {label:free?t('freeContinue'):t('useContinue',{n:bank}),primary:true,fn:()=>{
+        if(free) S.freeLevel=S.level; else S.continues--;
+        S.tray=rescue; save(); render();
+      }},
+      retry
+    ],preview);
   }
 }
 
 /* ---------- sheet & menu ---------- */
-function showSheet(title,text,buttons){
+function showSheet(title,text,buttons,extra){
   sheetOpen=true;
   $('#sheetTitle').textContent=title; $('#sheetText').textContent=text; $('#sheetText').hidden=!text;
+  $('#sheetExtra').replaceChildren(...(extra||[])); $('#sheetExtra').hidden=!extra;
   const box=$('#sheetBtns'); box.innerHTML='';
   buttons.forEach(b=>{
     const el=document.createElement('button'); el.textContent=b.label; if(b.primary) el.className='primary';
@@ -240,7 +260,7 @@ function showSheet(title,text,buttons){
 }
 function hideSheet(){$('#sheet').hidden=true;sheetOpen=false}
 function openMenu(){
-  showSheet(t('menuTitle',{n:S.level}),t('menuStats',{best:S.best||S.level,lines:S.lines||0}),[
+  showSheet(t('menuTitle',{n:S.level}),t('menuStats',{best:S.best||S.level,lines:S.lines||0,continues:S.continues||0}),[
     {label:t('keepPlaying'),primary:true},
     {label:t('newLayout'),fn:()=>{S.salt=(S.salt||0)+1;startLevel()}},
     {label:t('startOver'),fn:()=>showSheet(t('startOverTitle'),t('startOverText'),[

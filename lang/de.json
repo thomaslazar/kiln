@@ -22,7 +22,7 @@
   "lostFresh": "Versuch es mit einem neuen Aufbau.",
   "tryAgain": "Nochmal versuchen",
   "menuTitle": "Level {n}",
-  "menuStats": "Bestes Level: {best}. Abgeräumte Reihen insgesamt: {lines}.",
+  "menuStats": "Bestes Level: {best}. Abgeräumte Reihen insgesamt: {lines}. Joker: {continues}.",
   "keepPlaying": "Weiterspielen",
   "newLayout": "Neuer Aufbau für dieses Level",
   "startOver": "Von Level 1 neu beginnen",
@@ -30,5 +30,9 @@
   "startOverText": "Dein Level geht zurück auf 1. Dein bestes Level bleibt erhalten.",
   "startOverConfirm": "Neu beginnen",
   "cancel": "Abbrechen",
-  "language": "Sprache"
+  "language": "Sprache",
+  "useContinue": "Joker einsetzen (noch {n})",
+  "freeContinue": "Gratis-Joker einsetzen",
+  "continueEarned": "Joker verdient",
+  "wonContinue": "Du hast einen Joker verdient."
 }

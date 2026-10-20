@@ -22,7 +22,7 @@
   "lostFresh": "Try a fresh layout.",
   "tryAgain": "Try again",
   "menuTitle": "Level {n}",
-  "menuStats": "Best level reached: {best}. Lines cleared overall: {lines}.",
+  "menuStats": "Best level reached: {best}. Lines cleared overall: {lines}. Continues: {continues}.",
   "keepPlaying": "Keep playing",
   "newLayout": "New layout for this level",
   "startOver": "Start over from level 1",
@@ -30,5 +30,9 @@
   "startOverText": "Your level goes back to 1. Your best level is kept.",
   "startOverConfirm": "Start over",
   "cancel": "Cancel",
-  "language": "Language"
+  "language": "Language",
+  "useContinue": "Continue ({n} left)",
+  "freeContinue": "Free continue",
+  "continueEarned": "Continue earned",
+  "wonContinue": "You earned a continue."
 }
