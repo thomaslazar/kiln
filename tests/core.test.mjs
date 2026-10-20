@@ -68,7 +68,7 @@ test('gem goals', () => {
 test('gem rush', () => {
   for (let lv = 6; lv <= 90; lv++) {
     const L = makeLevel(lv, 0, 0, 'rush'), [t] = L.goal.targets;
-    assert.equal(L.goal.targets.length, 1); assert.ok(t.need >= 40 && t.need <= 300);
+    assert.equal(L.goal.targets.length, 1); assert.ok(t.need >= 40 && t.need <= 400);
     L.color.forEach((v, i) => assert.equal(L.gem[i], v ? t.g : 0));
   }
 });
