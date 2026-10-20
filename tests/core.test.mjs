@@ -154,4 +154,5 @@ test('validSave rejects bad goals and non-finite numbers', () => {
   assert.ok(!validSave({ ...S, goal: { ...S.goal, type: 'score' } }));
   assert.ok(!validSave({ ...S, goal: { type: 'gems', targets: [{ g: 9, need: 2 }] } }));
   assert.ok(!validSave({ ...S, score: 'x' }));
+  assert.ok(!validSave({ ...S, fails: undefined }));
 });

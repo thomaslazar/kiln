@@ -1,4 +1,4 @@
-import {N,SHAPES,occOf,fits,fullLines,anyFit,startState,deal,resolveMove,clearCells,won,fromV1,validSave} from './core.js';
+import {N,SHAPES,occOf,fits,fullLines,anyFit,startState,deal,resolveMove,clearCells,won,fromV1,validSave,difficulty} from './core.js';
 
 const KEY = 'kiln-v2', OLD = 'kiln-v1';
 const $ = s => document.querySelector(s);
@@ -131,8 +131,10 @@ slots.forEach((slot,i)=>{
 
 /* ---------- moves ---------- */
 function buzz(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
+let toastT;
 function toast(text){
   const t=$('#toast'); t.textContent=text; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),800);
 }
 function placePiece(i,r,c){
   const m=resolveMove(S,i,r,c), nl=m.lines;
@@ -149,7 +151,7 @@ function placePiece(i,r,c){
     busy=true;
     m.cleared.forEach(k=>cellEls[k].classList.add('pop'));
     if(m.fullClear) toast('Board clear');
-    else if(nl>1) toast(nl===2?'Double':nl===3?'Triple':`${nl} lines`);
+    else if(nl>1) toast((nl===2?'Double':nl===3?'Triple':`${nl} lines`)+(S.combo>=2?`, combo ${S.combo}`:''));
     else if(S.combo>=2) toast(`Combo ${S.combo}`);
     setTimeout(finish,reduced?0:300);
   }else finish();
@@ -165,7 +167,7 @@ function afterMove(){
   const occ=occOf(S.color);
   if(!S.tray.some(t=>t&&anyFit(occ,SHAPES[t.s]))){
     showSheet('No room left',
-      'Every set of pieces could have been placed, so this one’s on the moves. '+(S.fails+1>=4?'The retry has easier targets.':'Try a fresh layout.'),
+      'Every set of pieces could have been placed, so this one’s on the moves. '+(S.fails+1>=4&&difficulty(S.level,S.fails+1)<S.d?'The retry has easier targets.':'Try a fresh layout.'),
       [{label:'Try again',primary:true,fn:()=>{S.fails=(S.fails||0)+1;startLevel()}}]);
   }
 }
