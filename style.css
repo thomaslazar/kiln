@@ -26,6 +26,7 @@
   color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
 html{height:100%;background:var(--bg)}
 body{
   height:100%;margin:0;background:var(--bg);color:var(--ink);
@@ -131,7 +132,6 @@ header{width:var(--size);display:flex;justify-content:space-between;align-items:
   position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center;
   background:rgba(10,16,18,.38);padding:0 0 env(safe-area-inset-bottom,0px);
 }
-.sheet[hidden]{display:none}
 .card{
   width:min(100%,480px);background:var(--sheet);color:var(--ink);
   border-radius:22px 22px 0 0;padding:26px 22px 22px;
