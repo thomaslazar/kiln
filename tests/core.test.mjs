@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { difficulty, levelType, makeLevel, startsEmpty, fullLines, occOf } from '../src/core.js';
+import { linePoints, resolveMove, clearCells, won, SINGLE, difficulty, levelType, makeLevel, startsEmpty, fullLines, occOf } from '../src/core.js';
 
 test('fails 1 to 3 do not ease', () => {
   for (const lv of [10, 37, 60]) for (const f of [1, 2, 3])
@@ -104,3 +104,32 @@ test('deal is deterministic', () => {
   const a = startState(44, 2, 1), b = startState(44, 2, 1);
   assert.deepEqual(a.tray, b.tray); assert.deepEqual(deal(a), deal(b));
 });
+
+const blank = (type = 'score') => { const S = startState(1, 0, 0, type); S.color.fill(0); S.gem.fill(0); return S; };
+const rowGap = S => { for (let c = 1; c < 8; c++) S.color[c] = 1; };
+const single = (S, g = 0) => { S.tray = [{ s: SINGLE, c: 2, g: [g] }, null, null]; };
+
+test('line points', () => assert.deepEqual([1,2,3,4].map(linePoints), [10,30,60,100]));
+test('single line clear with full clear bonus', () => {
+  const S = blank(); rowGap(S); single(S);
+  const m = resolveMove(S, 0, 0, 0);
+  assert.equal(m.lines, 1); assert.equal(m.cleared.length, 8); assert.ok(m.fullClear);
+  assert.equal(m.points, 1 + 10 + 300); assert.equal(S.combo, 1); assert.equal(S.tray[0], null);
+  clearCells(S, m.cleared); assert.ok(S.color.every(v => v === 0));
+});
+test('combo multiplies and survives two idle moves, third resets', () => {
+  const S = blank(); S.color[63] = 3;
+  rowGap(S); single(S); clearCells(S, resolveMove(S, 0, 0, 0).cleared);
+  rowGap(S); single(S); const m2 = resolveMove(S, 0, 0, 0); clearCells(S, m2.cleared);
+  assert.equal(S.combo, 2); assert.equal(m2.points, 1 + 10 * 2);
+  for (const k of [1, 2]) { single(S); resolveMove(S, 0, 4, k); assert.equal(S.combo, 2); }
+  single(S); resolveMove(S, 0, 4, 3); assert.equal(S.combo, 0);
+});
+test('gems count for active colours only, capped at need', () => {
+  const S = blank('gems'); S.goal = { type: 'gems', targets: [{ g: 1, need: 2 }] };
+  rowGap(S); S.gem[1] = 1; S.gem[2] = 1; S.gem[3] = 1; S.gem[4] = 2; single(S, 1);
+  const m = resolveMove(S, 0, 0, 0);
+  assert.equal(S.got[1], 2); assert.equal(S.got[2], 0); assert.ok(won(S));
+  clearCells(S, m.cleared); assert.ok(S.gem.every(g => g === 0));
+});
+test('score win', () => { const S = blank(); S.goal = { type: 'score', need: 300 }; S.score = 299; assert.ok(!won(S)); S.score = 300; assert.ok(won(S)); });

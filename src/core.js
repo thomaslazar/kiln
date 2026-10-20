@@ -192,3 +192,27 @@ export function startState(level,fails,salt,type){
   const L=makeLevel(level,fails,salt,type),S={...L,got:[0,0,0,0,0,0],score:0,combo:0,idle:0,deals:0};
   S.tray=deal(S);return S;
 }
+
+/* ---------- moves ---------- */
+export const linePoints=n=>10*n*(n+1)/2;
+export function resolveMove(S,i,r,c){
+  const p=S.tray[i],placed=[],cleared=new Set();
+  SHAPES[p.s].cells.forEach(([dr,dc],j)=>{const k=(r+dr)*N+c+dc;S.color[k]=p.c;if(p.g[j])S.gem[k]=p.g[j];placed.push(k)});
+  S.tray[i]=null;
+  const {rows,cols}=fullLines(occOf(S.color)),lines=rows.length+cols.length;
+  rows.forEach(rr=>{for(let cc=0;cc<N;cc++)cleared.add(rr*N+cc)});
+  cols.forEach(cc=>{for(let rr=0;rr<N;rr++)cleared.add(rr*N+cc)});
+  const act=activeGems(S);
+  cleared.forEach(k=>{const g=S.gem[k];if(act.includes(g))S.got[g]++});
+  act.forEach(g=>{S.got[g]=Math.min(S.got[g],S.goal.targets.find(t=>t.g===g).need)});
+  let points=placed.length,fullClear=false;
+  if(lines){
+    S.combo++;S.idle=0;points+=linePoints(lines)*S.combo;
+    fullClear=S.color.every((v,k)=>!v||cleared.has(k));
+    if(fullClear)points+=300;
+  }else if(++S.idle>=3)S.combo=0;
+  S.score+=points;
+  return {placed,cleared:[...cleared],lines,points,fullClear};
+}
+export function clearCells(S,cells){for(const k of cells)S.color[k]=S.gem[k]=0}
+export const won=S=>S.goal.type==='score'?S.score>=S.goal.need:S.goal.targets.every(t=>S.got[t.g]>=t.need);
