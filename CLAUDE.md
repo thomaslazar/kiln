@@ -20,6 +20,8 @@ Read before changing behaviour:
 
 - `index.html`: markup and PWA meta. `style.css`: all styles.
 - `src/core.js`: all game rules, pure (no DOM, no storage). Tested in `tests/core.test.mjs`.
+- `src/theme.js`: pure chapter looks (no DOM). Tested in `tests/theme.test.mjs`; chapters and
+  looks in `tests/chapters.test.mjs`.
 - `src/ui.js`: language, state, saving, rendering, drag input, animations, sheets.
 - `lang/`: all visible text. `languages.json` maps codes to own-language names;
   `<code>.json` holds flat `"key": "text"` pairs with `{placeholders}`. `tests/lang.test.mjs`
@@ -55,6 +57,11 @@ Sections are marked `/* ---------- name ---------- */`.
   goal: `{type:'score', need}` or `{type:'gems'|'rush', targets:[{g, need}]}`. Targets come
   from `difficulty(level, 0)` times `ease` (-10% per fail from the 4th, floor 60%); the
   eased `d` only drives piece weights in `deal`.
+- **chapters**: `chapterOf(level)` gives `{n, start, length}` (chapter 1 = 1-40, later
+  `30 + hash(k) % 11`, cached). `difficulty` is chapter aware: later chapters start at the
+  base of level `10 + hash(k) % 6` and ramp to 0.75 over 70% of the chapter; the 5-level
+  wave stays global. `levelLook(level)` gives `{mode: normal|mono|pattern, pattern}` from
+  the level only (raw split 62/19/19, about 72/14/14 after the no-two-specials rule).
 - **fair dealing**: `weightFor` (size by fill and `d`, filler only above 45% fill, 3x3
   doubled), `activeGems(S)`, `deal(S)` (three pieces `{s, c, g}`, `g[j]` = gem per cell;
   always passes `solvable`; fallbacks to small pieces, then three singles; gem levels
@@ -76,6 +83,15 @@ Sections are marked `/* ---------- name ---------- */`.
   `en.json` with the chosen file into `T`. Choice: saved `localStorage['kiln-lang']`, else
   the first `navigator.languages` match, else English. `t('key', {n})` fills placeholders.
   Never put visible text in code; add a key to every `lang/*.json` instead.
+- Theme: `applyTheme()` sets CSS variables per chapter and colour scheme (live switching).
+  `gemHTML(g)` draws SVG gems (60% of a tile, chips 15px; colours via style attributes for
+  Safari). `tileColour(v, gem, r, c, where)` picks normal, mono or pattern colour, applies
+  `safeTile`, and uses neutral pieces in pattern levels. Header `#chap` shows the chapter
+  from 2; the win sheet adds `chapterBegins` on a chapter's last level.
+- `src/theme.js`: `chapterTheme(n)` (chapter 1 is the classic look; `theme.neutral` is
+  `{light, dark}`), `SYMBOLS` (13 paths), `symbolSVG`, `hueGap`, `safeTile`, `monoTile`,
+  `patternPos`, `patternColour`. Draw order in `chapterTheme` is fixed: changing it
+  changes every chapter's look.
 - `S` is saved whole to `localStorage['kiln-v2']` after every move. `load()` falls back to
   `fromV1` for broken v2 saves and for old `kiln-v1` saves.
 - Rendering by class names on 64 `.cell` > `.t` elements (`f`, `gem` + `data-gem`,

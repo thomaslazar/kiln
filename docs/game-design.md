@@ -17,6 +17,8 @@ another, each with a small goal.
    and slightly smaller pieces. The starting blocks never get fewer, they only move.
 5. Short, plain UI copy in sentence case.
 6. Relaxed, not punishing. A human loses sometimes; the balance bot wins nearly always.
+7. Fresh, not tiring: levels come in chapters that dip in difficulty and change look, and
+   a look never makes the board hard to read.
 
 ## Level types
 
@@ -33,6 +35,33 @@ in a row, and a level keeps its type on retry and on “New layout”.
   gems of it appear.
 - **Gem rush**: free many gems of one colour, about 40 early up to 400. Every piece
   carries that gem on every cell. The longest level type.
+
+## Chapters
+
+Levels are grouped into chapters. Chapter 1 is levels 1 to 40 with the classic look. Each
+later chapter has 30 to 40 levels (fixed per chapter number) and follows on directly.
+Saves need no migration: the chapter follows from the level.
+
+- **Difficulty:** in chapter 2 and later the base difficulty drops to that of level 10 to
+  15 (varies per chapter), then rises evenly over the first 70% of the chapter back to
+  the ceiling and stays there. The 5-level dip and the retry easing work as before. Block
+  counts and targets follow, so they drop at a chapter start.
+- **Look:** from chapter 2 each chapter generates its own colours, tile roundness, glaze
+  shine, button colour and five gem symbols, all from the chapter number. Colours come
+  from a classic scheme (analogous, triadic, split-complementary or tetradic) in OKLCH
+  with fixed lightness bands, for light and dark mode.
+- **Gem symbols and styles:** five distinct symbols from a pool of 13 (diamond, circle,
+  ring, triangle, star, hexagon, square, heart, moon, drop, leaf, bolt, cross), never a
+  look-alike pair together. One style per chapter: jewel, matte, line, duotone or glow.
+  Chapter 1 keeps diamond, circle, triangle, star and hexagon in matte.
+- **Gem on tile:** a gem never sits on a tile of a similar hue (within 35 degrees); the
+  tile is drawn in the nearest colour that is not. Visual only.
+- **Level looks:** each level has a look by level number, stable on retry: about 70%
+  normal, 15% one colour (every block one palette colour, not similar to the goal gems)
+  and 15% pattern (block colour follows its cell in rows, columns, diagonal or rings;
+  tray pieces are neutral). Never two special looks in a row. Only the look changes.
+- **Text:** the header shows “Chapter {n}” from chapter 2. The win sheet of a chapter’s
+  last level says “Chapter {n} begins.” The goal text stays “Free the gems”.
 
 ## Board and pieces
 
@@ -82,7 +111,8 @@ The “No room left” sheet shows the three rescue pieces first, so the choice 
 
 ## Visual design
 
-Glazed ceramic tiles on a cool stone board, light and dark themes. Font: Bricolage
+Glazed ceramic tiles on a cool stone board, light and dark themes, with a generated look
+per chapter (see Chapters). Font: Bricolage
 Grotesque with system fallbacks. The level number is the one large typographic element;
 the rest is kept quiet on purpose. Animations are skipped with reduced motion, and
 messages then show without movement.

@@ -24,6 +24,9 @@ Kiln is a progressive web app and works offline once loaded.
 - **Gem goals:** free gems of up to five colours, each with its own count.
 - **Gem rush:** free lots of gems of one colour; every piece carries them.
 
+Levels come in chapters of 30 to 40. Each new chapter starts a little easier and has its
+own look: colours, tiles and gem symbols. Some levels use a one-colour or pattern look.
+
 Stuck? Use a continue to get three rescue pieces and keep going. You earn them every
 5 levels and on long combos, and a level you keep failing offers one for free. Fail a
 level four times and the retry gets easier targets. No ads, no accounts, no

@@ -2,24 +2,9 @@
 
 What might come next. Nothing here is promised; order can change.
 
-## Next: chapters (in design)
+## Done
 
-Agreed so far:
-
-- Levels are grouped into chapters of about 30 to 40 levels, so the look does not change
-  too often. Chapter 1 is roughly levels 1 to 40 with today’s look.
-- Each later chapter has its own generated look, seeded by the chapter number: background,
-  board, tile colours, tile roundness, glaze shine, button colour, and its own five gem
-  symbols (from a pool of 13 shapes) drawn in one style (jewel, matte, line, duotone or
-  glow). Colours come from classic colour schemes in OKLCH with fixed lightness and
-  saturation bands, so every set is harmonious and readable in light and dark mode.
-- A gem never sits on a tile whose colour is too close to its own.
-- Difficulty drops noticeably at the start of a chapter (not back to level 1, roughly
-  mid-game), with lower targets and fewer gems, then ramps up slowly again.
-- The goal text stays “Free the gems”.
-
-Still open: the exact difficulty curve, how a new chapter is announced, and whether the
-chapter number shows next to the level.
+- Chapters: difficulty waves and generated looks (see `docs/game-design.md`).
 
 ## Ideas, not decided
 
