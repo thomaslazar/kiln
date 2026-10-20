@@ -137,8 +137,9 @@ export function makeLevel(level,fails,salt,type=levelType(level)){
   else if(type==='gems'){
     const gs=[1,2,3,4,5];
     for(let i=4;i>0;i--){const j=Math.floor(rng()*(i+1));[gs[i],gs[j]]=[gs[j],gs[i]]}
-    const need=2+Math.round(d*2);
-    const targets=gs.slice(0,Math.min(5,1+Math.floor(d0*5))).map(g=>({g,need}));
+    // colour count 1-5 picked per level (stable on retry); a growing gem budget is split across it
+    const k=1+hash(level*53+7)%5, need=Math.max(2,Math.round((10+18*d)/k));
+    const targets=gs.slice(0,k).map(g=>({g,need}));
     cells.forEach(i=>{if(rng()<.25)gem[i]=targets[Math.floor(rng()*targets.length)].g});
     goal={type,targets};
   }else{

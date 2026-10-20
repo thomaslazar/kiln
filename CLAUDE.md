@@ -58,7 +58,9 @@ the rest:
   - `makeLevel` puts glazed blocks on the board up to a density of `0.04 + 0.2*d` (some
     levels start empty), never completing a line. Goals:
     - `score`: reach `round10(100 + 2900*d^2)` points.
-    - `gems`: free `2 + round(2d)` gems of each of `1 + floor(5d)` colours. Gems sit on
+    - `gems`: 1 to 5 colours, picked per level from a hash of the level number (stable on
+      retry). A budget of `10 + 18d` gems is split evenly across them, at least 2 each
+      (early: 1x10 or 5x2, late: 1x27 or 5x6). Gems sit on
       about a quarter of the blocks, and dealt pieces carry a gem with 1/2 chance.
     - `rush`: free up to `min(400, round10(40 + 380d))` gems of one colour; every piece
       cell is dealt carrying that colour.

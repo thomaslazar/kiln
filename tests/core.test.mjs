@@ -65,6 +65,17 @@ test('gem goals', () => {
     L.gem.forEach((g, i) => { if (g) { assert.ok(gs.includes(g)); assert.ok(L.color[i]); } });
   }
 });
+test('gem goals vary colour count and grow with level', () => {
+  const total = lv => makeLevel(lv, 0, 0, 'gems').goal.targets.reduce((a, t) => a + t.need, 0);
+  const counts = new Set();
+  for (let lv = 3; lv <= 90; lv++) {
+    const t = makeLevel(lv, 0, 0, 'gems').goal.targets;
+    counts.add(t.length); assert.ok(t.every(x => x.need >= 2)); assert.ok(total(lv) >= 8, `level ${lv}`);
+  }
+  assert.equal(counts.size, 5);
+  const avg = (a, b) => { let s = 0; for (let lv = a; lv <= b; lv++) s += total(lv); return s / (b - a + 1); };
+  assert.ok(avg(60, 90) > avg(3, 20) + 8);
+});
 test('gem rush', () => {
   for (let lv = 6; lv <= 90; lv++) {
     const L = makeLevel(lv, 0, 0, 'rush'), [t] = L.goal.targets;
@@ -88,8 +99,9 @@ test('rush pieces are all gems until the target is met', () => {
   assert.deepEqual(activeGems(S), []);
   for (const p of deal(S)) assert.ok(p.g.every(x => x === 0));
 });
-test('gem goal pieces: about a third carry 1-2 gems of active colours only', () => {
-  const S = startState(60, 0, 0, 'gems'), done = S.goal.targets[0];
+test('gem goal pieces: about half carry 1-2 gems of active colours only', () => {
+  let lv = 60; while (makeLevel(lv, 0, 0, 'gems').goal.targets.length < 3) lv++;   // needs colours left after one is done
+  const S = startState(lv, 0, 0, 'gems'), done = S.goal.targets[0];
   S.got[done.g] = done.need;
   let pieces = 0, withGems = 0;
   for (let k = 0; k < 300; k++) for (const p of deal(S)) {

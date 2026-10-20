@@ -87,8 +87,11 @@ and nobody gets stuck because of the piece dice or a grindy goal.
   toward its colour's target.
 - Only target colours appear. Once a colour's target is met, no new gems of that colour
   spawn in pieces. Gems of that colour already on the board just clear without counting.
-- **Gem goals:** some tray pieces carry 1 or 2 gems (owner's estimate). *My call:* about
-  one piece in three, tuned with the sim so levels feel short.
+- **Gem goals:** some tray pieces carry 1 or 2 gems (owner's estimate); tuned to one piece
+  in two. After playtesting, the owner found early gem levels boring (1 colour, 2 gems),
+  so each level now picks 1 to 5 colours from the level number (sometimes many colours
+  with small counts, sometimes one colour with a big count), and a gem budget of about
+  10 early to 27 late is split across them, at least 2 per colour.
 - **Gem rush:** every cell of every piece carries a gem of the one target colour.
   Target varies with difficulty; 400 is near the top. *My call:* about 40 to 400; owner asked for shorter rush levels that stay the longest type.
 - Colours and shapes (owner picked "own shape per colour" from mockups):
