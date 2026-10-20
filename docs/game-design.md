@@ -60,8 +60,9 @@ Saves need no migration: the chapter follows from the level.
   normal, 15% one colour (every block one palette colour, not similar to the goal gems)
   and 15% pattern (block colour follows its cell in rows, columns, diagonal or rings;
   tray pieces are neutral). Never two special looks in a row. Only the look changes.
-- **Text:** the header shows “Chapter {n}” from chapter 2. The win sheet of a chapter’s
-  last level says “Chapter {n} begins.” The goal text stays “Free the gems”.
+- **Text:** the header shows “Chapter {n}” next to the level, from chapter 1 on. The win
+  sheet of a chapter’s last level says “Chapter {n} begins.” The goal text stays “Free
+  the gems”.
 
 ## Board and pieces
 

@@ -97,7 +97,7 @@ function render(){
   applyTheme();
   for(let i=0;i<64;i++) renderCell(i);
   $('#lvl').textContent=S.level;
-  const ch=chapterOf(S.level).n; $('#chap').hidden=ch<2; $('#chap').textContent=t('chapter',{n:ch});
+  $('#chap').textContent=t('chapter',{n:chapterOf(S.level).n});
   const g=S.goal, bar=$('#bar'), chips=$('#gems');
   if(g.type==='score'){
     $('#goalText').textContent=t('goalScore',{n:g.need});

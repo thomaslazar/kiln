@@ -86,8 +86,8 @@ Sections are marked `/* ---------- name ---------- */`.
 - Theme: `applyTheme()` sets CSS variables per chapter and colour scheme (live switching).
   `gemHTML(g)` draws SVG gems (60% of a tile, chips 15px; colours via style attributes for
   Safari). `tileColour(v, gem, r, c, where)` picks normal, mono or pattern colour, applies
-  `safeTile`, and uses neutral pieces in pattern levels. Header `#chap` shows the chapter
-  from 2; the win sheet adds `chapterBegins` on a chapter's last level.
+  `safeTile`, and uses neutral pieces in pattern levels. Header `#chap` always shows the
+  chapter; the win sheet adds `chapterBegins` on a chapter's last level.
 - `src/theme.js`: `chapterTheme(n)` (chapter 1 is the classic look; `theme.neutral` is
   `{light, dark}`), `SYMBOLS` (13 paths), `symbolSVG`, `hueGap`, `safeTile`, `monoTile`,
   `patternPos`, `patternColour`. Draw order in `chapterTheme` is fixed: changing it
