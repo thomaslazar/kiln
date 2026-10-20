@@ -111,39 +111,42 @@ export function levelType(level){
   }
   return typeCache[level];
 }
-export function makeLevel(level,fails,salt){
+export const startsEmpty=level=>level===1||hash(level*97+13)%10<3;
+export function makeLevel(level,fails,salt,type=levelType(level)){
   const seed=hash(level*7919+fails*104729+salt*15485863+77);
   const rng=mulberry32(seed);
-  const d=level===1?0:difficulty(level,fails);
-  const color=new Array(64).fill(0), gem=new Array(64).fill(false);
-  const target=level===1?0:Math.round((.04+.2*d)*64);
+  const d=level===1?0:difficulty(level,fails), d0=level===1?0:difficulty(level,0);
+  const color=new Array(64).fill(0), gem=new Array(64).fill(0);
+  const target=startsEmpty(level)?0:Math.round((.04+.2*d0)*64);   // block count ignores fails, only placement moves
   const small=SHAPES.map((s,i)=>i).filter(i=>SHAPES[i].n<=4);
-  let filled=0,tries=0;
-  while(filled<target&&tries<500){
-    tries++;
-    const s=SHAPES[small[Math.floor(rng()*small.length)]];
+  let filled=0;
+  for(let tries=0;filled<target&&tries<5000;tries++){
+    const pool=small.filter(i=>SHAPES[i].n<=target-filled);   // exact count: never overshoot
+    const s=SHAPES[pool[Math.floor(rng()*pool.length)]];
     const r=Math.floor(rng()*(N-s.h+1)), c=Math.floor(rng()*(N-s.w+1));
     if(!fits(occOf(color),s,r,c)) continue;
-    const idx=s.cells.map(([dr,dc])=>(r+dr)*N+c+dc);
-    idx.forEach(k=>color[k]=9);
+    const idx=s.cells.map(([dr,dc])=>(r+dr)*N+c+dc), col=1+Math.floor(rng()*5);
+    idx.forEach(k=>color[k]=col);
     const f=fullLines(occOf(color));
     if(f.rows.length||f.cols.length){idx.forEach(k=>color[k]=0);continue}
     filled+=s.n;
   }
-  const stones=color.map((v,i)=>v===9?i:-1).filter(i=>i>=0);
+  const cells=color.map((v,i)=>v?i:-1).filter(i=>i>=0);
   let goal;
-  if(level>2&&stones.length>=3&&rng()<.45){
-    const need=Math.min(stones.length,3+Math.round(d*5));
-    for(let k=0;k<need;k++){
-      const j=k+Math.floor(rng()*(stones.length-k));
-      [stones[k],stones[j]]=[stones[j],stones[k]];
-      gem[stones[k]]=true;
-    }
-    goal={type:'gems',need};
+  if(type==='score') goal={type,need:Math.round((100+2600*d)/10)*10};
+  else if(type==='gems'){
+    const gs=[1,2,3,4,5];
+    for(let i=4;i>0;i--){const j=Math.floor(rng()*(i+1));[gs[i],gs[j]]=[gs[j],gs[i]]}
+    const need=3+Math.round(d*5);
+    const targets=gs.slice(0,Math.min(5,1+Math.floor(d0*5))).map(g=>({g,need}));
+    cells.forEach(i=>{if(rng()<.25)gem[i]=targets[Math.floor(rng()*targets.length)].g});
+    goal={type,targets};
   }else{
-    goal={type:'lines',need:3+Math.round(d*7)};
+    const g=1+Math.floor(rng()*5);
+    cells.forEach(i=>gem[i]=g);
+    goal={type,targets:[{g,need:Math.min(500,Math.round((100+450*d)/10)*10)}]};
   }
-  return {seed,d,color,gem,goal};
+  return {seed,d,type,color,gem,goal};
 }
 
 /* ---------- fair dealing ---------- */
