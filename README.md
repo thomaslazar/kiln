@@ -52,6 +52,7 @@ because browsers block ES modules on `file://`.
 ## Docs
 
 - [Game design](docs/game-design.md): goals and rules.
+- [Roadmap](docs/roadmap.md): what might come next.
 - [Contributing](CONTRIBUTING.md): conventions for code, copy and commits.
 
 Pushes to `master` are tested and deployed to GitHub Pages by
