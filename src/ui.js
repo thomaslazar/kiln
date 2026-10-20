@@ -68,7 +68,7 @@ function applyTheme(){
   $('meta[name=theme-color]').content=L.bg;
   return true;
 }
-dark.addEventListener('change',()=>{if(S&&S.color&&!drag){applyTheme();render()}});
+dark.addEventListener('change',()=>{if(S&&S.color){applyTheme();if(!drag)render()}});
 // colour of a tile: normal uses its glaze; one colour uses a single glaze; pattern paints board cells by position, pieces grey
 function tileColour(v,gem,r,c,where){
   const k=levelLook(S.level), v0=i=>gem?safeTile(TH,i,gem-1):i, gv=i=>`var(--g${v0(i)+1})`;

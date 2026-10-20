@@ -112,7 +112,6 @@ The “No room left” sheet shows the three rescue pieces first, so the choice 
 ## Visual design
 
 Glazed ceramic tiles on a cool stone board, light and dark themes, with a generated look
-per chapter (see Chapters). Font: Bricolage
-Grotesque with system fallbacks. The level number is the one large typographic element;
-the rest is kept quiet on purpose. Animations are skipped with reduced motion, and
-messages then show without movement.
+per chapter (see Chapters). Font: Bricolage Grotesque with system fallbacks. The level
+number is the one large typographic element; the rest is kept quiet on purpose.
+Animations are skipped with reduced motion, and messages then show without movement.
