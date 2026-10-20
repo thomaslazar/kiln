@@ -1,5 +1,6 @@
-import {N,SHAPES,occOf,fits,fullLines,anyFit,startState,deal,resolveMove,clearCells,won,fromV1,validSave,
+import {N,SHAPES,chapterOf,occOf,fits,fullLines,anyFit,startState,deal,resolveMove,clearCells,won,fromV1,validSave,
   rescueTray,comboContinue,levelContinue,freeContinue} from './core.js';
+import {chapterTheme,safeTile,symbolSVG} from './theme.js';
 
 const KEY = 'kiln-v2', OLD = 'kiln-v1';
 const $ = s => document.querySelector(s);
@@ -53,16 +54,41 @@ const boardEl=$('#board'), cellEls=[];
 for(let i=0;i<64;i++){const c=document.createElement('div');c.className='cell';c.appendChild(Object.assign(document.createElement('div'),{className:'t'}));boardEl.appendChild(c);cellEls.push(c)}
 const slots=[...document.querySelectorAll('.slot')];
 
-const gemAttr=(el,g)=>{el.classList.toggle('gem',!!g);if(g)el.dataset.gem=g;else delete el.dataset.gem};
+/* theme: CSS variables follow the chapter and colour scheme; symbols and safe tiles follow the chapter */
+const dark=matchMedia('(prefers-color-scheme: dark)');
+let TH, themeKey, gemId=0;
+function applyTheme(){
+  const n=chapterOf(S.level).n, sc=dark.matches?'dark':'light', key=n+sc;
+  if(key===themeKey) return false;
+  themeKey=key; TH=chapterTheme(n);
+  const st=document.documentElement.style, L=TH[sc], set=(k,v)=>st.setProperty('--'+k,v);
+  for(const k of ['bg','ink','muted','board','well','track','sheet','accent']) set(k,L[k]);
+  for(let i=0;i<5;i++){set('g'+(i+1),TH.tiles[sc][i]); set('gem'+(i+1),TH.gems[sc][i])}
+  set('neutral',TH.neutral[sc]); set('rad',TH.rad); set('gloss',TH.gloss);
+  $('meta[name=theme-color]').content=L.bg;
+  return true;
+}
+dark.addEventListener('change',()=>{if(S&&S.color){applyTheme();render()}});
+// ponytail: task 4 extends this to (v,gem,r,c,where) for one-colour and pattern looks
+const tileColour=(v,gem)=>`var(--g${gem?safeTile(TH,v-1,gem-1)+1:v})`;
+const gemHTML=g=>symbolSVG(TH.symbols[g-1],TH.style,`var(--gem${g})`,'j'+gemId++);
+// puts gem g (0 = none) into the tile of a cell; skips the work when nothing changed
+function gemAttr(el,g){
+  el.classList.toggle('gem',!!g);
+  const t=el.querySelector('.t'), k=g?themeKey+g:'';
+  if(t.dataset.k!==k){t.dataset.k=k;t.innerHTML=g?gemHTML(g):''}
+}
 function renderCell(i){
   const el=cellEls[i], v=S.color[i];
   el.className='cell'+(v?' f':'');
   gemAttr(el,S.gem[i]);
-  if(v) el.style.setProperty('--c',`var(--g${v})`); else el.style.removeProperty('--c');
+  if(v) el.style.setProperty('--c',tileColour(v,S.gem[i])); else el.style.removeProperty('--c');
 }
 function render(){
+  applyTheme();
   for(let i=0;i<64;i++) renderCell(i);
   $('#lvl').textContent=S.level;
+  const ch=chapterOf(S.level).n; $('#chap').hidden=ch<2; $('#chap').textContent=t('chapter',{n:ch});
   const g=S.goal, bar=$('#bar'), chips=$('#gems');
   if(g.type==='score'){
     $('#goalText').textContent=t('goalScore',{n:g.need});
@@ -81,7 +107,7 @@ function render(){
 let flying=[0,0,0,0,0,0], flightGen=0;
 function renderChips(){
   $('#gems').innerHTML=S.goal.targets.map(t=>{const n=Math.min(S.got[t.g]-flying[t.g],t.need);
-    return `<span class="chip${n>=t.need?' done':''}" data-t="${t.g}"><i data-gem="${t.g}"><b></b></i>${n} / ${t.need}</span>`}).join('');
+    return `<span class="chip${n>=t.need?' done':''}" data-t="${t.g}"><i>${gemHTML(t.g)}</i>${n} / ${t.need}</span>`}).join('');
 }
 function flyGems(cells){
   const gen=flightGen, pitch=cellEls[0].getBoundingClientRect().width, size=pitch*.42;
@@ -91,7 +117,7 @@ function flyGems(cells){
     const x=a.left+a.width/2-size/2, y=a.top+a.height/2-size/2;
     const dx=b.left+b.width/2-size/2-x, dy=b.top+b.height/2-size/2-y;
     const el=document.createElement('span'); el.className='chip fly';
-    el.innerHTML=`<i data-gem="${g}" style="width:${size}px;height:${size}px"><b></b></i>`;
+    el.innerHTML=`<i style="width:${size}px;height:${size}px">${gemHTML(g)}</i>`;
     el.style.cssText=`left:${x}px;top:${y}px`;
     document.body.appendChild(el); flying[g]++;
     el.animate([
@@ -110,8 +136,8 @@ function buildPiece(container,p,unit){
   container.style.gridTemplate=`repeat(${s.h},${unit})/repeat(${s.w},${unit})`;
   s.cells.forEach(([dr,dc],j)=>{
     const fc=document.createElement('div'); fc.className='fcell';
-    fc.style.gridArea=`${dr+1}/${dc+1}`; gemAttr(fc,p.g[j]); fc.style.setProperty('--c',`var(--g${p.c})`);
-    fc.appendChild(Object.assign(document.createElement('div'),{className:'t'}));
+    fc.style.gridArea=`${dr+1}/${dc+1}`; fc.style.setProperty('--c',tileColour(p.c,p.g[j]));
+    fc.appendChild(Object.assign(document.createElement('div'),{className:'t'})); gemAttr(fc,p.g[j]);
     container.appendChild(fc);
   });
 }
@@ -138,7 +164,7 @@ function showGhost(){
   if(!drag.ok) return;
   const {s,p,r,c}=drag, o=occOf(S.color);
   s.cells.forEach(([dr,dc],j)=>{
-    const el=cellEls[(r+dr)*N+c+dc]; el.classList.add('ghost'); gemAttr(el,p.g[j]); el.style.setProperty('--c',`var(--g${p.c})`);
+    const el=cellEls[(r+dr)*N+c+dc]; el.classList.add('ghost'); gemAttr(el,p.g[j]); el.style.setProperty('--c',tileColour(p.c,p.g[j]));
     o[(r+dr)*N+c+dc]=1;
   });
   const {rows,cols}=fullLines(o);
@@ -218,11 +244,12 @@ function earnContinue(quiet){
 }
 function afterMove(){
   if(won(S)){
+    const ch=chapterOf(S.level);
     const earned=levelContinue(S.level,S.best||1);
     if(earned) earnContinue(true);   // said on the win sheet instead
     S.best=Math.max(S.best||1,S.level+1); save();
     buzz([20,40,20,40,60]);
-    showSheet(t('wonTitle',{n:S.level}),(S.goal.type==='score'?t('wonScore',{n:S.score}):t('wonGems'))+(earned?' '+t('wonContinue'):''),
+    showSheet(t('wonTitle',{n:S.level}),(S.goal.type==='score'?t('wonScore',{n:S.score}):t('wonGems'))+(earned?' '+t('wonContinue'):'')+(S.level===ch.start+ch.length-1?' '+t('chapterBegins',{n:ch.n+1}):''),
       [{label:t('nextLevel'),primary:true,fn:()=>{S.level++;S.fails=0;S.salt=0;startLevel()}}]);
     return;
   }

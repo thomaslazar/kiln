@@ -3,7 +3,7 @@
 // with the server, so a deploy shows up on the next launch. Offline, or after 3 s, the
 // cached copy is used.
 const CACHE = 'kiln-2';   // a new name drops the old cache, see activate
-const SHELL = ['./', 'index.html', 'style.css', 'src/core.js', 'src/ui.js', 'manifest.webmanifest',
+const SHELL = ['./', 'index.html', 'style.css', 'src/core.js', 'src/theme.js', 'src/ui.js', 'manifest.webmanifest',
   'lang/languages.json', 'lang/en.json',   // other languages get cached the first time they load
   'fonts/bricolage-grotesque-latin.woff2',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];

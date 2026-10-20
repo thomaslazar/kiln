@@ -13,7 +13,7 @@
   --track:#CBD2C8;
   --gem1:#FF4D6D; --gem2:#4CC2FF; --gem3:#4BE08A; --gem4:#FFC83D; --gem5:#C792FF;
   --g1:#5E9E8F; --g2:#3B5FA0; --g3:#C99530; --g4:#A2433C; --g5:#77589A;
-  --sheet:#F2F4EF;
+  --sheet:#F2F4EF; --accent:#3B5FA0; --neutral:#9AA39E; --rad:20%; --gloss:.42;
   color-scheme:light;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
@@ -22,7 +22,7 @@
 @media (prefers-color-scheme:dark){
   :root{
     --bg:#141C1F; --ink:#E2E8E4; --muted:#93A19D; --board:#0C1315; --well:#1C272B;
-    --track:#26333A; --sheet:#1C2629;
+    --track:#26333A; --sheet:#1C2629; --accent:#5479C2; --neutral:#56635F;
     --gem1:#F23D5E; --gem2:#3DB0EE; --gem3:#3DCF78; --gem4:#EDB52C; --gem5:#B67FF0;
     --g1:#6DB3A3; --g2:#5479C2; --g3:#D9A63E; --g4:#BD5148; --g5:#8F6CB5;
     color-scheme:dark;
@@ -48,23 +48,24 @@ main{
 header{width:var(--size);display:flex;justify-content:space-between;align-items:flex-end}
 .lvl{display:flex;align-items:baseline;gap:.4em;line-height:.9}
 .lvl small{font-size:1rem;color:var(--muted);font-weight:500}
+.lvl #chap{font-size:.85rem}
 .lvl b{font-size:clamp(2.4rem,9vw,3.2rem);font-weight:800;letter-spacing:-.04em;font-variation-settings:"opsz" 96}
 .menu{
   appearance:none;border:0;background:var(--well);color:var(--ink);
   width:44px;height:44px;border-radius:50%;font:inherit;font-size:1.4rem;line-height:1;cursor:pointer;
 }
-.menu:focus-visible,.sheet button:focus-visible{outline:3px solid var(--g2);outline-offset:2px}
+.menu:focus-visible,.sheet button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .goal{width:var(--size);display:flex;flex-direction:column;gap:8px}
 .goal-row{display:flex;justify-content:space-between;align-items:baseline;font-size:1.05rem;font-weight:600}
 .goal-row span:last-child{color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
 .bar{height:6px;border-radius:3px;background:var(--track);overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--g1);border-radius:3px;transition:width .3s ease}
+.bar i{display:block;height:100%;width:0;background:var(--accent);border-radius:3px;transition:width .3s ease}
 .gems{display:flex;gap:14px;flex-wrap:wrap;min-height:20px;align-items:center}
 .chip{display:inline-flex;align-items:center;gap:6px;font-size:1.05rem;font-weight:600;font-variant-numeric:tabular-nums}
 .chip.done{opacity:.4;text-decoration:line-through}
 .chip i{display:block;width:13px;height:13px}
 .fly{position:fixed;z-index:45;pointer-events:none;will-change:transform}
-.chip b{display:block;width:100%;height:100%;background:var(--gc)}
+.chip svg{display:block;width:100%;height:100%;overflow:visible}
 
 #board{
   width:var(--size);aspect-ratio:1;padding:calc(var(--size)*.02);
@@ -73,34 +74,16 @@ header{width:var(--size);display:flex;justify-content:space-between;align-items:
 }
 .cell,.fcell{position:relative}
 .t{
-  position:absolute;inset:5%;border-radius:20%;
+  position:absolute;inset:5%;border-radius:var(--rad);
   background:var(--well);
   box-shadow:inset 0 1px 2px rgba(0,0,0,.08);
 }
 .f .t,.ghost .t,.fcell .t{
   background-color:var(--c);
-  background-image:radial-gradient(circle at 30% 24%,rgba(255,255,255,.42),rgba(255,255,255,0) 46%);
+  background-image:radial-gradient(circle at 30% 24%,rgba(255,255,255,var(--gloss)),rgba(255,255,255,0) 46%);
   box-shadow:inset 0 2px 0 rgba(255,255,255,.28),inset 0 -3px 0 rgba(0,0,0,.24);
 }
-[data-gem="1"]{--gc:var(--gem1)}[data-gem="2"]{--gc:var(--gem2)}[data-gem="3"]{--gc:var(--gem3)}
-[data-gem="4"]{--gc:var(--gem4)}[data-gem="5"]{--gc:var(--gem5)}
-.gem .t::after,.gem .t::before{
-  content:"";position:absolute;left:31%;top:31%;width:38%;height:38%;background:var(--gc);
-}
-.gem .t::before{display:none}
-/* diamond and circle: outline by box-shadow */
-.gem .t::after{box-shadow:0 0 0 2px rgba(0,0,0,.25),inset 1px 1px 0 rgba(255,255,255,.7)}
-[data-gem="1"] .t::after,.chip i[data-gem="1"] b{transform:rotate(45deg);border-radius:2px}
-[data-gem="2"] .t::after,.chip i[data-gem="2"] b{border-radius:50%}
-.chip b{box-shadow:0 0 0 1px rgba(0,0,0,.25),inset 1px 1px 0 rgba(255,255,255,.7)}
-/* triangle, star, hexagon: clip-path clips shadows on the same element, so the outline is a darker twin behind (board) or a filter on the wrapper (chips) */
-[data-gem="3"] .t::after,[data-gem="4"] .t::after,[data-gem="5"] .t::after{box-shadow:none;left:28%;top:28%;width:44%;height:44%}
-[data-gem="3"] .t::before,[data-gem="4"] .t::before,[data-gem="5"] .t::before{display:block;left:calc(28% - 1.5px);top:calc(28% - 1.5px);width:calc(44% + 3px);height:calc(44% + 3px);background:rgba(0,0,0,.6)}
-[data-gem="3"] .t::before,[data-gem="3"] .t::after,.chip i[data-gem="3"] b{clip-path:polygon(50% 0,100% 100%,0 100%)}
-[data-gem="4"] .t::before,[data-gem="4"] .t::after,.chip i[data-gem="4"] b{clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
-[data-gem="5"] .t::before,[data-gem="5"] .t::after,.chip i[data-gem="5"] b{clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)}
-.chip i[data-gem="3"] b,.chip i[data-gem="4"] b,.chip i[data-gem="5"] b{box-shadow:none}
-.chip i[data-gem="3"],.chip i[data-gem="4"],.chip i[data-gem="5"]{filter:drop-shadow(0 0 1.5px rgba(0,0,0,.6))}
+.t svg{position:absolute;left:28%;top:28%;width:44%;height:44%;overflow:visible}
 .ghost .t{opacity:.45}
 .hint .t{filter:brightness(1.22) saturate(1.1);transform:scale(1.05)}
 .land .t{animation:land .2s ease-out}
@@ -151,10 +134,10 @@ header{width:var(--size);display:flex;justify-content:space-between;align-items:
   appearance:none;border:0;font:inherit;font-size:1.1rem;font-weight:700;
   padding:15px;border-radius:14px;cursor:pointer;background:var(--well);color:var(--ink);
 }
-.btns button.primary{background:var(--g2);color:#fff}
+.btns button.primary{background:var(--accent);color:#fff}
 .pick{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px;padding:0 4px;color:var(--muted);font-size:1.05rem;font-weight:600}
 .pick select{font:inherit;font-weight:700;color:var(--ink);background:var(--well);border:0;border-radius:12px;padding:10px 12px;max-width:60%}
-.pick select:focus-visible{outline:3px solid var(--g2);outline-offset:2px}
+.pick select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:0s!important;transition-duration:0s!important}
 }

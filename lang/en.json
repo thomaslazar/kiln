@@ -33,5 +33,7 @@
   "useContinue": "Continue ({n} left)",
   "freeContinue": "Free continue",
   "continueEarned": "Continue earned",
-  "wonContinue": "You earned a continue."
+  "wonContinue": "You earned a continue.",
+  "chapter": "Chapter {n}",
+  "chapterBegins": "Chapter {n} begins."
 }

@@ -33,5 +33,7 @@
   "useContinue": "Joker einsetzen (noch {n})",
   "freeContinue": "Gratis-Joker einsetzen",
   "continueEarned": "Joker verdient",
-  "wonContinue": "Du hast einen Joker verdient."
+  "wonContinue": "Du hast einen Joker verdient.",
+  "chapter": "Kapitel {n}",
+  "chapterBegins": "Kapitel {n} beginnt."
 }
