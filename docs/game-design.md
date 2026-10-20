@@ -6,7 +6,8 @@ another, each with a small goal.
 
 ## Design goals
 
-1. No ads, no accounts, no network calls apart from the Google Font.
+1. No ads, no accounts, no network calls to anyone else: every file, including the
+   font, comes from the game’s own site.
 2. Endless levels, one after another, each with a small goal.
 3. Fairness: losing should come from the player’s moves, never from the piece dice.
    Every tray of three pieces can be placed in some order.
