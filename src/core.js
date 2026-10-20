@@ -137,7 +137,7 @@ export function makeLevel(level,fails,salt,type=levelType(level)){
   else if(type==='gems'){
     const gs=[1,2,3,4,5];
     for(let i=4;i>0;i--){const j=Math.floor(rng()*(i+1));[gs[i],gs[j]]=[gs[j],gs[i]]}
-    const need=3+Math.round(d*5);
+    const need=2+Math.round(d*2);
     const targets=gs.slice(0,Math.min(5,1+Math.floor(d0*5))).map(g=>({g,need}));
     cells.forEach(i=>{if(rng()<.25)gem[i]=targets[Math.floor(rng()*targets.length)].g});
     goal={type,targets};
@@ -170,7 +170,7 @@ export function deal(S){
   const piece=s=>{
     const n=SHAPES[s].n,g=new Array(n).fill(0);
     if(act.length&&S.type==='rush')g.fill(act[0]);
-    else if(act.length&&S.type==='gems'&&rng()<1/3)
+    else if(act.length&&S.type==='gems'&&rng()<1/2)
       for(let k=1+Math.floor(rng()*2);k--;)g[Math.floor(rng()*n)]=act[Math.floor(rng()*act.length)];   // may collide: 1-2 gems
     return {s,c:1+Math.floor(rng()*5),g};
   };

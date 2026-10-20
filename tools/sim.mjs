@@ -25,18 +25,18 @@ function sim(level, type){
     clearCells(S, resolveMove(S, best.i, best.r, best.c).cleared);
     moves++;
   }
-  return { won: won(S), moves, maxDealMs };
+  return { won: won(S), moves, maxDealMs, need: S.goal.need ?? S.goal.targets.reduce((a, t) => a + t.need, 0) };
 }
 
 const levels = (process.argv[2] || '3,8,15,25,35,50,80').split(',').map(Number);
 const runs = Number(process.argv[3] || 6);
 const types = (process.argv[4] || 'score,gems,rush').split(',');
 for (const type of types) for (const lv of levels) {
-  let wins = 0, slow = 0, moves = 0;
+  let wins = 0, slow = 0, moves = 0, need = 0;
   for (let k = 0; k < runs; k++) {
     const r = sim(lv + k, type);
     if (r.won) wins++;
-    slow = Math.max(slow, r.maxDealMs); moves += r.moves;
+    slow = Math.max(slow, r.maxDealMs); moves += r.moves; need += r.need;
   }
-  console.log(`${type} levels ${lv}-${lv + runs - 1}: bot won ${wins}/${runs}, slowest deal ${slow} ms, avg moves ${Math.round(moves / runs)}`);
+  console.log(`${type} levels ${lv}-${lv + runs - 1}: bot won ${wins}/${runs}, slowest deal ${slow} ms, avg moves ${Math.round(moves / runs)}, avg need ${Math.round(need / runs)}`);
 }

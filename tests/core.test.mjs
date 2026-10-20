@@ -98,7 +98,7 @@ test('gem goal pieces: about a third carry 1-2 gems of active colours only', () 
     assert.ok(!p.g.includes(done.g));
     p.g.forEach(x => assert.ok(x === 0 || activeGems(S).includes(x)));
   }
-  assert.ok(withGems / pieces > 0.2 && withGems / pieces < 0.5);
+  assert.ok(withGems / pieces > 0.2 && withGems / pieces < 0.6);
 });
 test('deal is deterministic', () => {
   const a = startState(44, 2, 1), b = startState(44, 2, 1);
