@@ -10,20 +10,13 @@
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
+  :root{
     --bg:#141C1F; --ink:#E2E8E4; --muted:#93A19D; --board:#0C1315; --well:#1C272B;
     --track:#26333A; --sheet:#1C2629;
     --gem1:#F23D5E; --gem2:#3DB0EE; --gem3:#3DCF78; --gem4:#EDB52C; --gem5:#B67FF0;
     --g1:#6DB3A3; --g2:#5479C2; --g3:#D9A63E; --g4:#BD5148; --g5:#8F6CB5;
     color-scheme:dark;
   }
-}
-:root[data-theme="dark"]{
-  --bg:#141C1F; --ink:#E2E8E4; --muted:#93A19D; --board:#0C1315; --well:#1C272B;
-  --track:#26333A; --sheet:#1C2629;
-  --gem1:#F23D5E; --gem2:#3DB0EE; --gem3:#3DCF78; --gem4:#EDB52C; --gem5:#B67FF0;
-  --g1:#6DB3A3; --g2:#5479C2; --g3:#D9A63E; --g4:#BD5148; --g5:#8F6CB5;
-  color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:inherit}
 [hidden]{display:none!important}
