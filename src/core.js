@@ -175,19 +175,24 @@ export function deal(S){
       for(let k=1+Math.floor(rng()*2);k--;)g[Math.floor(rng()*n)]=act[Math.floor(rng()*act.length)];   // may collide: 1-2 gems
     return {s,c:1+Math.floor(rng()*5),g};
   };
+  const tray=set=>{   // gem goals: never a tray without gems while colours are open
+    const t=set.map(piece);
+    if(act.length&&S.type==='gems'&&!t.some(p=>p.g.some(Boolean))){const p=t[Math.floor(rng()*3)];p.g[Math.floor(rng()*p.g.length)]=act[Math.floor(rng()*act.length)]}
+    return t;
+  };
   for(let a=0;a<40;a++){
     const set=[pick(),pick(),pick()];
     if(wantClear&&a<25&&!set.some(i=>canClear(occ,SHAPES[i]))) continue;
     if(!solvable(occ,set,25000)) continue;
-    return set.map(piece);
+    return tray(set);
   }
   // Fallback: small pieces that fit, verified; three singles always work.
   const fitting=SHAPES.map((s,i)=>i).filter(i=>SHAPES[i].n<=3&&anyFit(occ,SHAPES[i]));
   for(let a=0;a<30&&fitting.length;a++){
     const set=[0,0,0].map(()=>fitting[Math.floor(rng()*fitting.length)]);
-    if(solvable(occ,set,25000)) return set.map(piece);
+    if(solvable(occ,set,25000)) return tray(set);
   }
-  return [SINGLE,SINGLE,SINGLE].map(piece);
+  return tray([SINGLE,SINGLE,SINGLE]);
 }
 export function startState(level,fails,salt,type){
   const L=makeLevel(level,fails,salt,type),S={...L,got:[0,0,0,0,0,0],score:0,combo:0,idle:0,deals:0};

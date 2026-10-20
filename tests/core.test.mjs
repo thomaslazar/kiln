@@ -112,6 +112,12 @@ test('gem goal pieces: about half carry 1-2 gems of active colours only', () => 
   }
   assert.ok(withGems / pieces > 0.2 && withGems / pieces < 0.6);
 });
+test('every gem goal tray has at least one gem while colours are open', () => {
+  for (const lv of [3, 12, 40, 70]) {
+    const S = startState(lv, 0, 0, 'gems');
+    for (let k = 0; k < 300; k++) assert.ok(deal(S).some(p => p.g.some(Boolean)), `level ${lv} deal ${k}`);
+  }
+});
 test('deal is deterministic', () => {
   const a = startState(44, 2, 1), b = startState(44, 2, 1);
   assert.deepEqual(a.tray, b.tray); assert.deepEqual(deal(a), deal(b));

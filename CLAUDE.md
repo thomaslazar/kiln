@@ -61,7 +61,8 @@ the rest:
     - `gems`: 1 to 5 colours, picked per level from a hash of the level number (stable on
       retry). A budget of `10 + 18d` gems is split evenly across them, at least 2 each
       (early: 1x10 or 5x2, late: 1x27 or 5x6). Gems sit on
-      about a quarter of the blocks, and dealt pieces carry a gem with 1/2 chance.
+      about a quarter of the blocks, and dealt pieces carry a gem with 1/2 chance. A tray
+      always has at least one gem while a colour is still open.
     - `rush`: free up to `min(400, round10(40 + 380d))` gems of one colour; every piece
       cell is dealt carrying that colour.
   - Scoring (`resolveMove`): 1 point per cell placed, `10*n*(n+1)/2` for `n` lines times a
