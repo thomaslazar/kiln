@@ -222,6 +222,10 @@ const int=(v,d)=>Number.isInteger(v)&&v>=0?v:d;
 export const fromV1=o=>({level:Math.max(1,int(o&&o.level,1)),fails:0,salt:0,best:Math.max(1,int(o&&o.best,1)),lines:int(o&&o.lines,0)});
 export function validSave(s){
   if(!s||!TYPES.includes(s.type)||!s.goal||!Array.isArray(s.color)||s.color.length!==64||!Array.isArray(s.gem)||s.gem.length!==64) return false;
+  const g=s.goal, F=Number.isFinite;
+  if(typeof g!=='object'||g.type!==s.type||![s.level,s.score,s.combo,s.idle].every(F)) return false;
+  if(s.type==='score'){ if(!F(g.need)) return false; }
+  else if(!Array.isArray(g.targets)||!g.targets.length||!g.targets.every(t=>t&&Number.isInteger(t.g)&&t.g>=1&&t.g<=5&&F(t.need)&&t.need>=1)) return false;
   if(!Array.isArray(s.got)||s.got.length!==6||!Array.isArray(s.tray)||s.tray.length!==3) return false;
   return s.tray.every(t=>t===null||(t&&Number.isInteger(t.s)&&t.s>=0&&t.s<SHAPES.length&&Array.isArray(t.g)&&t.g.length===SHAPES[t.s].n));
 }

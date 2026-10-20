@@ -146,3 +146,12 @@ test('save validation', () => {
   assert.ok(!validSave({ ...S, gem: [] }));
   assert.ok(!validSave({ ...S, type: 'lines' }));
 });
+
+test('validSave rejects bad goals and non-finite numbers', () => {
+  const S = JSON.parse(JSON.stringify({ level: 5, fails: 0, salt: 0, best: 5, lines: 0, ...startState(5, 0, 0, 'gems') }));
+  assert.ok(validSave(S));
+  assert.ok(!validSave({ ...S, goal: { type: 'gems' } }));
+  assert.ok(!validSave({ ...S, goal: { ...S.goal, type: 'score' } }));
+  assert.ok(!validSave({ ...S, goal: { type: 'gems', targets: [{ g: 9, need: 2 }] } }));
+  assert.ok(!validSave({ ...S, score: 'x' }));
+});

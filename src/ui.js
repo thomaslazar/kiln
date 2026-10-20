@@ -8,15 +8,18 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let S;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function load(){
+  let o=null;
   try{
     const s=JSON.parse(localStorage.getItem(KEY));
     if(validSave(s)) return s;
+    if(s&&typeof s==='object') return fromV1(s);   // broken v2: keep progress, start fresh
   }catch(e){}
   try{
     const raw=localStorage.getItem(OLD); if(!raw) return null;
+    o=fromV1(JSON.parse(raw));   // progress only, caller starts the level
     localStorage.removeItem(OLD);
-    return fromV1(JSON.parse(raw));   // progress only, caller starts the level
-  }catch(e){return null}
+  }catch(e){}
+  return o;
 }
 function startLevel(){
   Object.assign(S,startState(S.level,S.fails,S.salt));
