@@ -150,9 +150,12 @@ function placePiece(i,r,c){
   if(nl){
     busy=true;
     m.cleared.forEach(k=>cellEls[k].classList.add('pop'));
-    if(m.fullClear) toast('Board clear');
-    else if(nl>1) toast((nl===2?'Double':nl===3?'Triple':`${nl} lines`)+(S.combo>=2?`, combo ${S.combo}`:''));
-    else if(S.combo>=2) toast(`Combo ${S.combo}`);
+    if(S.type==='score'){   // these toasts announce bonus points, so gem levels skip them
+      const combo=S.combo>=2;
+      if(m.fullClear) toast('Board clear');
+      else if(nl>1) toast((nl===2?'Double':nl===3?'Triple':`${nl} lines`)+(combo?`, combo ${S.combo}`:''));
+      else if(combo) toast(`Combo ${S.combo}`);
+    }
     setTimeout(finish,reduced?0:300);
   }else finish();
 }

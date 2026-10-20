@@ -64,7 +64,8 @@ the rest:
       cell is dealt carrying that colour.
   - Scoring (`resolveMove`): 1 point per cell placed, `10*n*(n+1)/2` for `n` lines times a
     combo multiplier, +300 for a full board clear. The combo grows with each clearing move
-    and resets after 3 moves without a clear.
+    and resets after 3 moves without a clear. The Double, Triple, Combo
+    and Board clear toasts only show in score levels, since they announce bonus points.
 - **fair dealing**: `deal(S)` draws three weighted pieces (it reads `S.seed`, `S.d`,
   `S.color` and advances `S.deals`). Large pieces get rarer as the
   board fills, small ones more common. It rejects any set that `solvable` says cannot all

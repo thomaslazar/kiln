@@ -114,7 +114,8 @@ bonus. Starting numbers (*my guesses, tune with the sim*):
 - Score drives only score levels. *My call:* gem levels do not show a score. Score and
   combo reset at the start of every level and every retry.
 - Feedback: a "Combo 3" style toast next to the existing "Double" and "Triple" toasts,
-  and a "Board clear" toast. Short, sentence case.
+  and a "Board clear" toast. Short, sentence case. Owner's rule: these toasts announce
+  bonus points, and gem levels have no points, so all of them only show in score levels.
 
 ### Difficulty and failing
 
