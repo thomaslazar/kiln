@@ -294,6 +294,14 @@ function showSheet(title,text,buttons,extra){
   box.firstElementChild&&box.firstElementChild.focus({preventScroll:true});
 }
 function hideSheet(){$('#sheet').hidden=true;sheetOpen=false}
+// The phone's share menu where there is one, otherwise copy the link.
+async function share(){
+  const url=location.origin+location.pathname;
+  try{
+    if(navigator.share) return await navigator.share({title:'Kiln',text:t('shareText'),url});
+    await navigator.clipboard.writeText(url); toast(t('linkCopied'));
+  }catch(e){if(e.name!=='AbortError') showSheet(t('share'),url,[{label:t('keepPlaying'),primary:true}])}   // cancelled share: nothing to say
+}
 function openMenu(){
   showSheet(t('menuTitle',{n:S.level}),[t('statBest',{n:S.best||S.level}),t('statLines',{n:S.lines||0}),t('statContinues',{n:S.continues||0})].join('\n'),[
     {label:t('keepPlaying'),primary:true},
@@ -301,7 +309,8 @@ function openMenu(){
     {label:t('startOver'),fn:()=>showSheet(t('startOverTitle'),t('startOverText'),[
       {label:t('startOverConfirm'),primary:true,fn:()=>{S.level=1;S.fails=0;S.salt=0;startLevel()}},
       {label:t('cancel')}
-    ])}
+    ])},
+    {label:t('share'),fn:share}
   ]);
   // language: a native dropdown, so the list can grow
   const row=document.createElement('label'), sel=document.createElement('select');

@@ -35,5 +35,8 @@
   "continueEarned": "Continue earned",
   "wonContinue": "You earned a continue.",
   "chapter": "Chapter {n}",
-  "chapterBegins": "Chapter {n} begins."
+  "chapterBegins": "Chapter {n} begins.",
+  "share": "Share Kiln",
+  "shareText": "A relaxed block puzzle with no ads. Give it a try:",
+  "linkCopied": "Link copied"
 }

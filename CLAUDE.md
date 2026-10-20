@@ -101,6 +101,8 @@ Sections are marked `/* ---------- name ---------- */`.
 - `placePiece`: `resolveMove`, freed gems fly to their chips (`flyGems`, at most 8, chip
   counts lag via `flying[]`), clears animate 300 ms, then `clearCells`, new tray when
   empty, `afterMove` checks win and loss. Bonus toasts only in score levels.
+- Menu "Share Kiln": `share()` uses `navigator.share` (title, `shareText`, page URL without
+  query), else copies the URL (`linkCopied` toast), else shows it as selectable sheet text.
 - Continues: every reward calls `earnContinue()`. On a loss with a free or banked
   continue, `afterMove` previews `rescueTray(S)` in `#sheetExtra` (via `showSheet`'s 4th
   argument) next to "Try again".

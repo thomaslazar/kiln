@@ -35,5 +35,8 @@
   "continueEarned": "Joker verdient",
   "wonContinue": "Du hast einen Joker verdient.",
   "chapter": "Kapitel {n}",
-  "chapterBegins": "Kapitel {n} beginnt."
+  "chapterBegins": "Kapitel {n} beginnt.",
+  "share": "Kiln teilen",
+  "shareText": "Ein entspanntes Blockpuzzle ohne Werbung. Probier es aus:",
+  "linkCopied": "Link kopiert"
 }

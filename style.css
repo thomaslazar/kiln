@@ -127,7 +127,7 @@ header{width:var(--size);display:flex;justify-content:space-between;align-items:
 @media (min-width:600px){.sheet{align-items:center}.card{border-radius:22px}}
 @keyframes rise{from{transform:translateY(30px);opacity:0}}
 .card h2{margin:0 0 6px;font-size:1.9rem;font-weight:800;letter-spacing:-.03em;line-height:1.05}
-.card p{margin:0 0 20px;color:var(--muted);font-size:1.05rem;line-height:1.4;white-space:pre-line}
+.card p{margin:0 0 20px;color:var(--muted);font-size:1.05rem;line-height:1.4;white-space:pre-line;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}
 .btns{display:flex;flex-direction:column;gap:10px}
 .preview{display:flex;justify-content:space-around;align-items:center;min-height:64px;margin:-4px 0 18px;padding:10px;border-radius:14px;background:var(--well)}
 .btns button{
