@@ -4,14 +4,20 @@ Kiln is an ad-free 8x8 block puzzle for phones (Block Blast style: drag pieces o
 board, full rows and columns clear). It is a personal hobby project, built for fun, with
 endless generated levels that never strand the player through bad luck.
 
-The whole game currently lives in `index.html` (HTML, CSS and vanilla JS, no build step,
-no dependencies). It was first built in a Claude.ai chat and published as an artifact;
-this repo is where it continues.
+Vanilla HTML, CSS and JS, no build step, no dependencies. It was first built in a
+Claude.ai chat and published as an artifact; this repo is where it continues.
+
+- `index.html`: markup only.
+- `style.css`: all styles.
+- `src/core.js`: pure game logic (ES module, no DOM, no storage).
+- `src/ui.js`: state, rendering, input, sheets. Imports from `core.js`.
+- `tools/sim.mjs`: balance bot, imports `src/core.js` directly.
 
 ## Running it
 
-- Open `index.html` in a browser, or serve the folder with any static server
-  (`npx serve .` or `python3 -m http.server`).
+- Serve the folder with any static server (`npx serve .` or `python3 -m http.server`).
+  Opening `index.html` from `file://` does not work, because browsers block ES modules
+  there.
 - Test touch input on a real phone or with device emulation in DevTools.
 - `node tools/sim.mjs` runs the balance bot (see Balancing below).
 
@@ -23,9 +29,11 @@ this repo is where it continues.
 4. Failing a level makes the retry easier, so nobody is stuck on one level.
 5. Short, plain UI copy in sentence case.
 
-## How the code is organised (inside the single `<script>`)
+## How the code is organised
 
-Sections are marked with `/* ---------- name ---------- */` comments:
+Sections are marked with `/* ---------- name ---------- */` comments. `src/core.js` holds
+random, shapes, board helpers, difficulty & levels and fair dealing; `src/ui.js` holds
+the rest:
 
 - **random**: `mulberry32` seeded PRNG and an integer `hash`. Everything random is seeded,
   so a level is reproducible from `(level, fails, salt)`.
@@ -46,7 +54,8 @@ Sections are marked with `/* ---------- name ---------- */` comments:
   - `makeLevel` places stone blocks up to a density of `0.04 + 0.2*d`, never completing a
     line. Goal is either `lines` (`3 + 7d` lines) or, from level 3 on, sometimes `gems`
     (gems on stones, `3 + 5d` of them).
-- **fair dealing**: `deal()` draws three weighted pieces. Large pieces get rarer as the
+- **fair dealing**: `deal(S)` draws three weighted pieces (it reads `S.seed`, `S.d`,
+  `S.color` and advances `S.deals`). Large pieces get rarer as the
   board fills, small ones more common. It rejects any set that `solvable` says cannot all
   be placed, and when the board is above 40% full it usually requires one piece that can
   complete a line. Fallbacks: small fitting pieces, then three singles (which always fit).
@@ -75,19 +84,14 @@ one large typographic element; the rest is kept quiet on purpose.
 
 ## Balancing
 
-`tools/sim.mjs` extracts the core from `index.html` (between `const N = 8` and
-`/* ---------- state`) and runs a bot that picks moves greedily while checking the rest of
+`tools/sim.mjs` imports `src/core.js` and runs a bot that picks moves greedily while checking the rest of
 the tray stays placeable. Current result: the bot wins nearly every level from 3 to 85,
 and the slowest deal takes about 10 ms. A human loses sometimes, which is the intended
 feel: relaxed, not punishing. Rerun the sim after any change to weights, density or goals.
 
-## Suggested first steps
+## Suggested next steps
 
-1. `git init`, commit as is.
-2. Consider splitting into `index.html`, `style.css`, `src/core.js` (pure logic, no DOM)
-   and `src/ui.js`. With a pure core module, `tools/sim.mjs` can import it directly
-   instead of slicing the HTML, and unit tests become easy.
-3. Make it an installable PWA: `manifest.webmanifest`, icons, a small service worker for
+1. Make it an installable PWA: `manifest.webmanifest`, icons, a small service worker for
    offline play.
 
 ## Conventions
