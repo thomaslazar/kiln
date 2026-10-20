@@ -260,7 +260,7 @@ function showSheet(title,text,buttons,extra){
 }
 function hideSheet(){$('#sheet').hidden=true;sheetOpen=false}
 function openMenu(){
-  showSheet(t('menuTitle',{n:S.level}),t('menuStats',{best:S.best||S.level,lines:S.lines||0,continues:S.continues||0}),[
+  showSheet(t('menuTitle',{n:S.level}),[t('statBest',{n:S.best||S.level}),t('statLines',{n:S.lines||0}),t('statContinues',{n:S.continues||0})].join('\n'),[
     {label:t('keepPlaying'),primary:true},
     {label:t('newLayout'),fn:()=>{S.salt=(S.salt||0)+1;startLevel()}},
     {label:t('startOver'),fn:()=>showSheet(t('startOverTitle'),t('startOverText'),[
