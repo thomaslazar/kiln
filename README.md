@@ -27,6 +27,12 @@ Kiln is a progressive web app and works offline once loaded.
 Fail a level four times and the retry gets easier targets. No ads, no accounts, no
 tracking. Progress is saved in your browser.
 
+## Languages
+
+English and German. The game follows your phone’s language and can be switched in the
+menu. Want Kiln in your language? Translating is one JSON file, no coding needed:
+see [Add a language](CONTRIBUTING.md#add-or-improve-a-language).
+
 ## Run locally
 
 No build step and no dependencies. Serve the folder with any static server:
@@ -53,3 +59,5 @@ Pushes to `master` are tested and deployed to GitHub Pages by
 
 [PolyForm Noncommercial 1.0.0](LICENSE.md). Free to play, study, modify and share for any
 noncommercial purpose. Commercial use is not permitted without the author’s permission.
+
+The bundled font, Bricolage Grotesque, is under the [SIL Open Font License 1.1](fonts/OFL.txt).

@@ -17,6 +17,26 @@
 
 - Sentence case, short and plain.
 - No em-dashes in UI copy or docs. Use typographic apostrophes (’) in visible text.
+- All visible text lives in `lang/<code>.json`, never in the code. The UI reads it with
+  `t('key', {placeholders})`. A new text needs a key in every language file; the tests
+  fail until it has one.
+
+## Add or improve a language
+
+No code changes needed.
+
+1. Copy `lang/en.json` to `lang/<code>.json`, using the two-letter language code
+   (for example `fr.json` for French).
+2. Translate every value. Keep the keys and the `{placeholders}` exactly as they are;
+   you may move a placeholder within the sentence.
+3. Add one line to `lang/languages.json`: `"<code>": "<the language’s own name>"`,
+   for example `"fr": "Français"`.
+4. Run `node --test` (or let the pull request checks run it). It fails if a key is
+   missing or extra, a text is empty, or a placeholder differs from English.
+5. Open a pull request.
+
+The game picks a language from the phone’s settings and can be switched in the menu.
+Keys missing from a language fall back to English, but the tests require all of them.
 
 ## Tests and balance
 

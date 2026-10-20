@@ -18,13 +18,20 @@ Read before changing behaviour:
 
 - `index.html`: markup and PWA meta. `style.css`: all styles.
 - `src/core.js`: all game rules, pure (no DOM, no storage). Tested in `tests/core.test.mjs`.
-- `src/ui.js`: state, saving, rendering, drag input, animations, sheets.
+- `src/ui.js`: language, state, saving, rendering, drag input, animations, sheets.
+- `lang/`: all visible text. `languages.json` maps codes to own-language names;
+  `<code>.json` holds flat `"key": "text"` pairs with `{placeholders}`. `tests/lang.test.mjs`
+  checks every file against `en.json` and that `src/ui.js` uses exactly the `en.json` keys.
 - `tools/sim.mjs`: greedy bot over the core API.
+- `fonts/`: Bricolage Grotesque variable woff2 subsets (latin, latin-ext, vietnamese) with
+  its SIL OFL license (`fonts/OFL.txt`, must ship with the files). `@font-face` rules are at
+  the top of `style.css`. No third-party requests anywhere.
 - `manifest.webmanifest`, `sw.js`, `icons/`: PWA. `icons/icon.svg` is the source; the PNGs
   are renders of it (192, 512, maskable 512 at 80% scale, 180 for Apple).
-- `.github/workflows/pages.yml`: on push to `master`, runs `node --test`, then deploys the
-  site files to https://thomaslazar.github.io/kiln/. New site files must be added to its
-  copy step and, if needed offline, to `SHELL` in `sw.js`.
+- `.github/workflows/pages.yml`: runs `node --test` on pull requests and pushes; on push to
+  `master` it then deploys the site files to https://thomaslazar.github.io/kiln/. New site
+  files must be added to its copy step and, if needed offline, to `SHELL` in `sw.js`.
+- `.github/pull_request_template.md`: checklist, including one for translations.
 - `docs/superpowers/`: the original spec and plan for level types, gems and score.
 
 ## Core (`src/core.js`)
@@ -56,6 +63,10 @@ Sections are marked `/* ---------- name ---------- */`.
 
 ## UI (`src/ui.js`)
 
+- Language: top-level `await` loads `lang/languages.json`, then `setLang(code)` merges
+  `en.json` with the chosen file into `T`. Choice: saved `localStorage['kiln-lang']`, else
+  the first `navigator.languages` match, else English. `t('key', {n})` fills placeholders.
+  Never put visible text in code; add a key to every `lang/*.json` instead.
 - `S` is saved whole to `localStorage['kiln-v2']` after every move. `load()` falls back to
   `fromV1` for broken v2 saves and for old `kiln-v1` saves.
 - Rendering by class names on 64 `.cell` > `.t` elements (`f`, `gem` + `data-gem`,
