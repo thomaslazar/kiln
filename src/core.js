@@ -102,7 +102,7 @@ const chStarts=[1,41];   // chapter 1 is 40 levels, later ones 30-40; chStarts[k
 export function chapterOf(level){
   let k=1;
   for(;;k++){
-    if(k>=chStarts.length)chStarts.push(chStarts[k-1]+30+hash(k+1)%11);
+    if(k>=chStarts.length)chStarts.push(chStarts[k-1]+30+hash(k)%11);
     if(level<chStarts[k])return{n:k,start:chStarts[k-1],length:chStarts[k]-chStarts[k-1]};
   }
 }

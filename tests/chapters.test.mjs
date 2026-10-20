@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chapterOf, difficulty, levelLook } from '../src/core.js';
+import { chapterOf, difficulty, levelLook, hash } from '../src/core.js';
 
 test('chapter 1 is levels 1-40, later chapters 30-40 levels back to back', () => {
   assert.deepEqual(chapterOf(1), { n: 1, start: 1, length: 40 });
@@ -10,6 +10,7 @@ test('chapter 1 is levels 1-40, later chapters 30-40 levels back to back', () =>
   for (let lv = 41; lv <= 2000; lv++) {
     const c = chapterOf(lv);
     assert.ok(c.length >= 30 && c.length <= 40);
+    assert.equal(c.length, 30 + hash(c.n) % 11);
     assert.ok(lv >= c.start && lv < c.start + c.length);
     if (c.n !== prev.n) { assert.equal(c.n, prev.n + 1); assert.equal(c.start, prev.start + prev.length); }
     prev = c;
