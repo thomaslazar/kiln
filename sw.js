@@ -2,6 +2,7 @@
 // background (stale-while-revalidate). A new deploy shows up on the next launch.
 const CACHE = 'kiln';
 const SHELL = ['./', 'index.html', 'style.css', 'src/core.js', 'src/ui.js', 'manifest.webmanifest',
+  'lang/languages.json', 'lang/en.json',   // other languages get cached the first time they load
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

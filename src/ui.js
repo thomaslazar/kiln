@@ -4,6 +4,26 @@ const KEY = 'kiln-v2', OLD = 'kiln-v1';
 const $ = s => document.querySelector(s);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/* ---------- language ---------- */
+// Texts live in lang/<code>.json; lang/languages.json lists them. Missing keys fall back to English.
+const LANG_KEY = 'kiln-lang';
+const getJSON = f => fetch(f).then(r => r.json());
+const LANGS = await getJSON('lang/languages.json');
+let lang, T;
+const t = (k, v = {}) => T[k].replace(/\{(\w+)\}/g, (_, n) => v[n]);
+async function setLang(code){
+  const [en, tr] = await Promise.all([getJSON('lang/en.json'), code === 'en' ? {} : getJSON(`lang/${code}.json`)]);
+  T = {...en, ...tr}; lang = code; document.documentElement.lang = code;
+  $('.lvl small').textContent = t('level');
+  $('#menuBtn').setAttribute('aria-label', t('menu')); $('#board').setAttribute('aria-label', t('board'));
+}
+function pickLang(){
+  try{const l = localStorage.getItem(LANG_KEY); if(LANGS[l]) return l}catch(e){}
+  for(const n of navigator.languages || [navigator.language]){const b = String(n).slice(0,2).toLowerCase(); if(LANGS[b]) return b}
+  return 'en';
+}
+await setLang(pickLang());
+
 /* ---------- state ---------- */
 let S;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
@@ -44,17 +64,16 @@ function render(){
   $('#lvl').textContent=S.level;
   const g=S.goal, bar=$('#bar'), chips=$('#gems');
   if(g.type==='score'){
-    $('#goalText').textContent=`Reach ${g.need} points`;
+    $('#goalText').textContent=t('goalScore',{n:g.need});
     $('#goalCount').textContent=`${S.score} / ${g.need}`;
     bar.hidden=false; chips.hidden=true;
     bar.firstElementChild.style.width=(100*Math.min(1,S.score/g.need))+'%';
   }else{
-    $('#goalText').textContent='Free the gems'; $('#goalCount').textContent='';
+    $('#goalText').textContent=t('goalGems'); $('#goalCount').textContent='';
     bar.hidden=true; chips.hidden=false;
     renderChips();
   }
-  $('#hintText').textContent=S.level<=2?'Drag a piece onto the board. Full rows and columns clear.':
-    g.type!=='score'?'Clear a gem’s row or column to free it.':'';
+  $('#hintText').textContent=S.level<=2?t('hintStart'):g.type!=='score'?t('hintGems'):'';
   renderTray();
 }
 // counters lag behind S.got while freed gems are still flying to them
@@ -183,9 +202,9 @@ function placePiece(i,r,c){
     m.cleared.forEach(k=>cellEls[k].classList.add('pop'));
     if(S.type==='score'){   // these toasts announce bonus points, so gem levels skip them
       const combo=S.combo>=2;
-      if(m.fullClear) toast('Board clear');
-      else if(nl>1) toast((nl===2?'Double':nl===3?'Triple':`${nl} lines`)+(combo?`, combo ${S.combo}`:''));
-      else if(combo) toast(`Combo ${S.combo}`);
+      if(m.fullClear) toast(t('boardClear'));
+      else if(nl>1){const text=nl===2?t('double'):nl===3?t('triple'):t('lines',{n:nl}); toast(combo?t('withCombo',{text,n:S.combo}):text)}
+      else if(combo) toast(t('combo',{n:S.combo}));
     }
     setTimeout(finish,reduced?0:300);
   }else finish();
@@ -194,22 +213,22 @@ function afterMove(){
   if(won(S)){
     S.best=Math.max(S.best||1,S.level+1); save();
     buzz([20,40,20,40,60]);
-    showSheet(`Level ${S.level} cleared`,S.goal.type==='score'?`${S.score} points.`:'All gems freed.',
-      [{label:'Next level',primary:true,fn:()=>{S.level++;S.fails=0;S.salt=0;startLevel()}}]);
+    showSheet(t('wonTitle',{n:S.level}),S.goal.type==='score'?t('wonScore',{n:S.score}):t('wonGems'),
+      [{label:t('nextLevel'),primary:true,fn:()=>{S.level++;S.fails=0;S.salt=0;startLevel()}}]);
     return;
   }
   const occ=occOf(S.color);
   if(!S.tray.some(t=>t&&anyFit(occ,SHAPES[t.s]))){
-    showSheet('No room left',
-      'Every set of pieces could have been placed, so this one’s on the moves. '+(S.fails+1>=4&&difficulty(S.level,S.fails+1)<S.d?'The retry has easier targets.':'Try a fresh layout.'),
-      [{label:'Try again',primary:true,fn:()=>{S.fails=(S.fails||0)+1;startLevel()}}]);
+    showSheet(t('lostTitle'),
+      t('lostText')+' '+(S.fails+1>=4&&difficulty(S.level,S.fails+1)<S.d?t('lostEasier'):t('lostFresh')),
+      [{label:t('tryAgain'),primary:true,fn:()=>{S.fails=(S.fails||0)+1;startLevel()}}]);
   }
 }
 
 /* ---------- sheet & menu ---------- */
 function showSheet(title,text,buttons){
   sheetOpen=true;
-  $('#sheetTitle').textContent=title; $('#sheetText').textContent=text;
+  $('#sheetTitle').textContent=title; $('#sheetText').textContent=text; $('#sheetText').hidden=!text;
   const box=$('#sheetBtns'); box.innerHTML='';
   buttons.forEach(b=>{
     const el=document.createElement('button'); el.textContent=b.label; if(b.primary) el.className='primary';
@@ -220,17 +239,26 @@ function showSheet(title,text,buttons){
   box.firstElementChild&&box.firstElementChild.focus({preventScroll:true});
 }
 function hideSheet(){$('#sheet').hidden=true;sheetOpen=false}
-$('#menuBtn').addEventListener('click',()=>{
-  if(busy||drag) return;
-  showSheet(`Level ${S.level}`,`Best level reached: ${S.best||S.level}. Lines cleared overall: ${S.lines||0}.`,[
-    {label:'Keep playing',primary:true},
-    {label:'New layout for this level',fn:()=>{S.salt=(S.salt||0)+1;startLevel()}},
-    {label:'Start over from level 1',fn:()=>showSheet('Start over?','Your level goes back to 1. Your best level is kept.',[
-      {label:'Start over',primary:true,fn:()=>{S.level=1;S.fails=0;S.salt=0;startLevel()}},
-      {label:'Cancel'}
+function openMenu(){
+  showSheet(t('menuTitle',{n:S.level}),t('menuStats',{best:S.best||S.level,lines:S.lines||0}),[
+    {label:t('keepPlaying'),primary:true},
+    {label:t('newLayout'),fn:()=>{S.salt=(S.salt||0)+1;startLevel()}},
+    {label:t('startOver'),fn:()=>showSheet(t('startOverTitle'),t('startOverText'),[
+      {label:t('startOverConfirm'),primary:true,fn:()=>{S.level=1;S.fails=0;S.salt=0;startLevel()}},
+      {label:t('cancel')}
     ])}
   ]);
-});
+  // language: a native dropdown, so the list can grow
+  const row=document.createElement('label'), sel=document.createElement('select');
+  row.className='pick'; row.append(t('language'),sel);
+  for(const [code,name] of Object.entries(LANGS)) sel.add(new Option(name,code,false,code===lang));
+  sel.addEventListener('change',async()=>{
+    try{localStorage.setItem(LANG_KEY,sel.value)}catch(e){}
+    await setLang(sel.value); render(); openMenu();   // reopen so the menu itself switches language
+  });
+  $('#sheetBtns').appendChild(row);
+}
+$('#menuBtn').addEventListener('click',()=>{if(!busy&&!drag) openMenu()});
 
 /* ---------- boot ---------- */
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});   // offline play
