@@ -60,7 +60,7 @@ the rest:
     - `score`: reach `round10(100 + 2900*d^2)` points.
     - `gems`: free `2 + round(2d)` gems of each of `1 + floor(5d)` colours. Gems sit on
       about a quarter of the blocks, and dealt pieces carry a gem with 1/2 chance.
-    - `rush`: free up to `min(500, round10(100 + 450d))` gems of one colour; every piece
+    - `rush`: free up to `min(300, round10(100 + 250d))` gems of one colour; every piece
       cell is dealt carrying that colour.
   - Scoring (`resolveMove`): 1 point per cell placed, `10*n*(n+1)/2` for `n` lines times a
     combo multiplier, +300 for a full board clear. The combo grows with each clearing move

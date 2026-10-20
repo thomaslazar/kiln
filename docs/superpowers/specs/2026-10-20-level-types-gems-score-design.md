@@ -90,7 +90,7 @@ and nobody gets stuck because of the piece dice or a grindy goal.
 - **Gem goals:** some tray pieces carry 1 or 2 gems (owner's estimate). *My call:* about
   one piece in three, tuned with the sim so levels feel short.
 - **Gem rush:** every cell of every piece carries a gem of the one target colour.
-  Target varies with difficulty; 500 is near the top. *My call:* about 100 to 500.
+  Target varies with difficulty; 300 is near the top. *My call:* about 100 to 300; owner asked for shorter rush levels that stay the longest type.
 - Colours and shapes (owner picked "own shape per colour" from mockups):
   ruby `#FF4D6D` diamond, sapphire `#4CC2FF` circle, emerald `#4BE08A` triangle,
   amber `#FFC83D` star, amethyst `#C792FF` hexagon. Each gem has a thin dark outline so it

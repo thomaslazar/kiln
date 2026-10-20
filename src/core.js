@@ -144,7 +144,7 @@ export function makeLevel(level,fails,salt,type=levelType(level)){
   }else{
     const g=1+Math.floor(rng()*5);
     cells.forEach(i=>gem[i]=g);
-    goal={type,targets:[{g,need:Math.min(500,Math.round((100+450*d)/10)*10)}]};
+    goal={type,targets:[{g,need:Math.min(300,Math.round((100+250*d)/10)*10)}]};
   }
   return {seed,d,type,color,gem,goal};
 }
