@@ -10,7 +10,9 @@ Read before changing behaviour:
 ## Commands
 
 - Run: serve the folder (`python3 -m http.server`); `file://` does not work (ES modules).
-  The service worker caches files, so after an edit reload twice, or bypass it in DevTools.
+  The service worker is network first (revalidates past the HTTP cache, 3 s timeout, cache
+  only as offline fallback), so an edit or a deploy shows on the next load. If `sw.js`
+  changes how it caches, rename `CACHE` so `activate` drops the old cache.
 - Test: `node --test` (not `node --test tests/`, which fails on Node 26).
 - Balance: `node tools/sim.mjs [levels] [runs] [types]`, e.g. `node tools/sim.mjs 3,25,50 3 gems`.
 
