@@ -1,6 +1,6 @@
-import {N,SHAPES,chapterOf,occOf,fits,fullLines,anyFit,startState,deal,resolveMove,clearCells,won,fromV1,validSave,
+import {N,SHAPES,chapterOf,levelLook,occOf,fits,fullLines,anyFit,startState,deal,resolveMove,clearCells,won,fromV1,validSave,
   rescueTray,comboContinue,levelContinue,freeContinue} from './core.js';
-import {chapterTheme,safeTile,symbolSVG} from './theme.js';
+import {chapterTheme,safeTile,monoTile,patternPos,patternColour,symbolSVG} from './theme.js';
 
 const KEY = 'kiln-v2', OLD = 'kiln-v1';
 const $ = s => document.querySelector(s);
@@ -69,8 +69,17 @@ function applyTheme(){
   return true;
 }
 dark.addEventListener('change',()=>{if(S&&S.color&&!drag){applyTheme();render()}});
-// ponytail: task 4 extends this to (v,gem,r,c,where) for one-colour and pattern looks
-const tileColour=(v,gem)=>`var(--g${gem?safeTile(TH,v-1,gem-1)+1:v})`;
+// colour of a tile: normal uses its glaze; one colour uses a single glaze; pattern paints board cells by position, pieces grey
+function tileColour(v,gem,r,c,where){
+  const k=levelLook(S.level), v0=i=>gem?safeTile(TH,i,gem-1):i, gv=i=>`var(--g${v0(i)+1})`;
+  if(k.mode==='mono') return gv(monoTile(TH,S.goal.type==='score'?[]:S.goal.targets.map(t=>t.g-1)));
+  if(k.mode==='pattern'){
+    if(where==='piece') return 'var(--neutral)';
+    const pos=patternPos(k.pattern,r,c);
+    return gem?gv(Math.round(pos*4)):patternColour(TH,dark.matches?'dark':'light',pos);
+  }
+  return gv(v-1);
+}
 const gemHTML=g=>symbolSVG(TH.symbols[g-1],TH.style,`var(--gem${g})`,'j'+gemId++);
 // puts gem g (0 = none) into the tile of a cell; skips the work when nothing changed
 function gemAttr(el,g){
@@ -82,7 +91,7 @@ function renderCell(i){
   const el=cellEls[i], v=S.color[i];
   el.className='cell'+(v?' f':'');
   gemAttr(el,S.gem[i]);
-  if(v) el.style.setProperty('--c',tileColour(v,S.gem[i])); else el.style.removeProperty('--c');
+  if(v) el.style.setProperty('--c',tileColour(v,S.gem[i],i>>3,i&7,'board')); else el.style.removeProperty('--c');
 }
 function render(){
   applyTheme();
@@ -136,7 +145,7 @@ function buildPiece(container,p,unit){
   container.style.gridTemplate=`repeat(${s.h},${unit})/repeat(${s.w},${unit})`;
   s.cells.forEach(([dr,dc],j)=>{
     const fc=document.createElement('div'); fc.className='fcell';
-    fc.style.gridArea=`${dr+1}/${dc+1}`; fc.style.setProperty('--c',tileColour(p.c,p.g[j]));
+    fc.style.gridArea=`${dr+1}/${dc+1}`; fc.style.setProperty('--c',tileColour(p.c,p.g[j],0,0,'piece'));
     fc.appendChild(Object.assign(document.createElement('div'),{className:'t'})); gemAttr(fc,p.g[j]);
     container.appendChild(fc);
   });
@@ -164,7 +173,7 @@ function showGhost(){
   if(!drag.ok) return;
   const {s,p,r,c}=drag, o=occOf(S.color);
   s.cells.forEach(([dr,dc],j)=>{
-    const el=cellEls[(r+dr)*N+c+dc]; el.classList.add('ghost'); gemAttr(el,p.g[j]); el.style.setProperty('--c',tileColour(p.c,p.g[j]));
+    const el=cellEls[(r+dr)*N+c+dc]; el.classList.add('ghost'); gemAttr(el,p.g[j]); el.style.setProperty('--c',tileColour(p.c,p.g[j],0,0,'piece'));
     o[(r+dr)*N+c+dc]=1;
   });
   const {rows,cols}=fullLines(o);
