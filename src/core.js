@@ -100,7 +100,16 @@ export function solvable(occ,list,budget){
 export function difficulty(level,fails){
   const base=Math.min(.75,(level-1)/50);
   const saw=[0,.06,.12,.18,-.08][(level-1)%5];   // gentle waves, every 5th level is a breather
-  return Math.max(0,Math.min(1,base+saw-.18*fails));
+  return Math.max(0,Math.min(1,base+saw-.18*Math.max(0,fails-3)));   // fails 1-3 retry at the same difficulty
+}
+const TYPES=['score','gems','rush'],typeCache=['score','score','score'];   // index = level, 1-2 always score
+export function levelType(level){
+  for(let l=typeCache.length;l<=level;l++){
+    const k=l<6?2:3;let i=hash(l*31+5)%k;
+    if(TYPES[i]===typeCache[l-1]&&TYPES[i]===typeCache[l-2])i=(i+1)%k;
+    typeCache[l]=TYPES[i];
+  }
+  return typeCache[level];
 }
 export function makeLevel(level,fails,salt){
   const seed=hash(level*7919+fails*104729+salt*15485863+77);
