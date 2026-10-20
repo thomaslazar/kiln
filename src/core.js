@@ -20,9 +20,10 @@ const BASE = [
   [[0,0],[0,1],[0,2],[1,1]],
   [[0,1],[0,2],[1,0],[1,1]],
   [[0,0],[1,0],[2,0],[2,1],[2,2]],
-  [[0,0],[1,1]]
+  [[0,0],[1,1]],
+  [[0,0],[1,1],[2,2]]   // new families go last: saved trays store shape indices
 ];
-const CAT = ['x','s','s','m','l','m','l','l','s','m','m','m','l','x'];   // x: filler (single, diagonal pair), only on a crowded board
+const CAT = ['x','s','s','m','l','m','l','l','s','m','m','m','l','x','x'];   // x: filler (single, diagonals), only on a crowded board
 function norm(cells){
   const mr=Math.min(...cells.map(c=>c[0])), mc=Math.min(...cells.map(c=>c[1]));
   return cells.map(([r,c])=>[r-mr,c-mc]).sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
@@ -156,7 +157,7 @@ function weightFor(s,d,fill){
   const cat=CAT[s.fam];
   if(cat==='x'&&!crowd) return 0;
   const w=cat==='s'||cat==='x'?2-1.1*d+4*crowd:cat==='m'?2.2:.5+1.1*d-2.2*crowd;
-  return Math.max(.05,w)*s.share;
+  return Math.max(.05,w)*s.share*(s.fam===7?2:1);   // 3x3 doubled: the most satisfying drop
 }
 export const activeGems=S=>S.goal.type==='score'?[]:S.goal.targets.filter(t=>S.got[t.g]<t.need).map(t=>t.g);
 export function deal(S){

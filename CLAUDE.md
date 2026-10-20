@@ -40,8 +40,9 @@ the rest:
   so a level is reproducible from `(level, fails, salt)`.
 - **shapes**: `BASE` lists piece families; `variants()` generates all unique rotations and
   mirrors. `CAT` tags each family as small, medium or large (`s`/`m`/`l`) for weighting,
-  or filler (`x`: single and diagonal pair), which is only dealt once the board is more
-  than 45% full (or by the fallbacks).
+  or filler (`x`: single and the 2- and 3-block diagonals), which is only dealt once the
+  board is more than 45% full (or by the fallbacks). The 3x3 square gets double weight.
+  Add new families at the end of `BASE` so existing shape indices in saved trays stay valid.
   `share` spreads a family's weight across its variants so families with many rotations
   are not overrepresented.
 - **board helpers**: the board is a flat array of 64 numbers. `0` empty, `1..5` glaze

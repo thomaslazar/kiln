@@ -119,12 +119,25 @@ test('every gem goal tray has at least one gem while colours are open', () => {
   }
 });
 test('single and diagonal pieces only come when the board is crowded', () => {
-  const filler = p => [0, 13].includes(SHAPES[p.s].fam);
+  const filler = p => [0, 13, 14].includes(SHAPES[p.s].fam);
   const S = startState(20, 0, 0, 'score'); S.color.fill(0);
   for (let k = 0; k < 300; k++) assert.ok(!deal(S).some(filler), `empty board deal ${k}`);
   for (let i = 0; i < 64; i++) S.color[i] = (Math.floor(i / 8) + i % 8) % 3 ? 1 : 0;   // ~2/3 full, no full line
   let seen = 0; for (let k = 0; k < 300; k++) if (deal(S).some(filler)) seen++;
   assert.ok(seen > 0);
+});
+test('3-block diagonal exists in both directions', () => {
+  const key = s => JSON.stringify(s.cells);
+  const diag = SHAPES.filter(s => s.fam === 14).map(key).sort();
+  assert.deepEqual(diag, [JSON.stringify([[0,0],[1,1],[2,2]]), JSON.stringify([[0,2],[1,1],[2,0]])].sort());
+});
+test('3x3 is the most common large piece', () => {
+  const S = startState(20, 0, 0, 'score'); S.color.fill(0);
+  let large = 0, sq = 0;
+  for (let k = 0; k < 600; k++) for (const p of deal(S)) {
+    const n = SHAPES[p.s].n; if (n >= 5) { large++; if (n === 9) sq++; }
+  }
+  assert.ok(sq / large > 0.33, `3x3 share ${(sq / large).toFixed(2)}`);
 });
 test('deal is deterministic', () => {
   const a = startState(44, 2, 1), b = startState(44, 2, 1);
