@@ -233,6 +233,7 @@ $('#menuBtn').addEventListener('click',()=>{
 });
 
 /* ---------- boot ---------- */
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});   // offline play
 S=load();
 if(S&&S.color){render();afterMove()}
 else{S=S||{level:1,fails:0,salt:0,best:1,lines:0};startLevel()}
