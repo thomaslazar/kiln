@@ -88,6 +88,9 @@ the rest:
   highlights lines that would clear.
 - **moves**: `placePiece` applies the move, animates clears (300 ms, skipped with reduced
   motion), deals a new tray when all three are used, then `afterMove` checks win and loss.
+  Gems that count (`resolveMove(...).freed`, at most 8 per move) fly from their tile to
+  their goal chip (`flyGems`, Web Animations API); the chip count lags via `flying[]`
+  until each gem lands. Skipped with reduced motion.
 - **sheet & menu**: one bottom-sheet dialog reused for win, loss and the menu.
 
 ## Visual design

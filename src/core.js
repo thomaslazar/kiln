@@ -203,9 +203,8 @@ export function resolveMove(S,i,r,c){
   const {rows,cols}=fullLines(occOf(S.color)),lines=rows.length+cols.length;
   rows.forEach(rr=>{for(let cc=0;cc<N;cc++)cleared.add(rr*N+cc)});
   cols.forEach(cc=>{for(let rr=0;rr<N;rr++)cleared.add(rr*N+cc)});
-  const act=activeGems(S);
-  cleared.forEach(k=>{const g=S.gem[k];if(act.includes(g))S.got[g]++});
-  act.forEach(g=>{S.got[g]=Math.min(S.got[g],S.goal.targets.find(t=>t.g===g).need)});
+  const act=activeGems(S),need=g=>S.goal.targets.find(t=>t.g===g).need,freed=[];
+  cleared.forEach(k=>{const g=S.gem[k];if(act.includes(g)&&S.got[g]<need(g)){S.got[g]++;freed.push(k)}});
   let points=placed.length,fullClear=false;
   if(lines){
     S.combo++;S.idle=0;points+=linePoints(lines)*S.combo;
@@ -213,7 +212,7 @@ export function resolveMove(S,i,r,c){
     if(fullClear)points+=300;
   }else if(++S.idle>=3)S.combo=0;
   S.score+=points;
-  return {placed,cleared:[...cleared],lines,points,fullClear};
+  return {placed,cleared:[...cleared],freed,lines,points,fullClear};
 }
 export function clearCells(S,cells){for(const k of cells)S.color[k]=S.gem[k]=0}
 export const won=S=>S.goal.type==='score'?S.score>=S.goal.need:S.goal.targets.every(t=>S.got[t.g]>=t.need);

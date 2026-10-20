@@ -142,6 +142,7 @@ test('gems count for active colours only, capped at need', () => {
   rowGap(S); S.gem[1] = 1; S.gem[2] = 1; S.gem[3] = 1; S.gem[4] = 2; single(S, 1);
   const m = resolveMove(S, 0, 0, 0);
   assert.equal(S.got[1], 2); assert.equal(S.got[2], 0); assert.ok(won(S));
+  assert.deepEqual(m.freed, [0, 1]);   // only gems that counted, in clear order
   clearCells(S, m.cleared); assert.ok(S.gem.every(g => g === 0));
 });
 test('score win', () => { const S = blank(); S.goal = { type: 'score', need: 300 }; S.score = 299; assert.ok(!won(S)); S.score = 300; assert.ok(won(S)); });

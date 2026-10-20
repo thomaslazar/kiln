@@ -22,6 +22,7 @@ function load(){
   return o;
 }
 function startLevel(){
+  flightGen++; flying=[0,0,0,0,0,0];   // gems still in the air belong to the old level
   Object.assign(S,startState(S.level,S.fails,S.salt));
   save(); render();
 }
@@ -50,11 +51,39 @@ function render(){
   }else{
     $('#goalText').textContent='Free the gems'; $('#goalCount').textContent='';
     bar.hidden=true; chips.hidden=false;
-    chips.innerHTML=g.targets.map(t=>`<span class="chip${S.got[t.g]>=t.need?' done':''}"><i data-gem="${t.g}"><b></b></i>${Math.min(S.got[t.g],t.need)} / ${t.need}</span>`).join('');
+    renderChips();
   }
   $('#hintText').textContent=S.level<=2?'Drag a piece onto the board. Full rows and columns clear.':
     g.type!=='score'?'Clear a gem’s row or column to free it.':'';
   renderTray();
+}
+// counters lag behind S.got while freed gems are still flying to them
+let flying=[0,0,0,0,0,0], flightGen=0;
+function renderChips(){
+  $('#gems').innerHTML=S.goal.targets.map(t=>{const n=Math.min(S.got[t.g]-flying[t.g],t.need);
+    return `<span class="chip${n>=t.need?' done':''}" data-t="${t.g}"><i data-gem="${t.g}"><b></b></i>${n} / ${t.need}</span>`}).join('');
+}
+function flyGems(cells){
+  const gen=flightGen, pitch=cellEls[0].getBoundingClientRect().width, size=pitch*.42;
+  cells.slice(0,8).forEach((k,n)=>{   // ponytail: cap at 8 flights per move, the rest count at once
+    const g=S.gem[k], to=$(`#gems .chip[data-t="${g}"] i`); if(!to) return;
+    const a=cellEls[k].getBoundingClientRect(), b=to.getBoundingClientRect();
+    const x=a.left+a.width/2-size/2, y=a.top+a.height/2-size/2;
+    const dx=b.left+b.width/2-size/2-x, dy=b.top+b.height/2-size/2-y;
+    const el=document.createElement('span'); el.className='chip fly';
+    el.innerHTML=`<i data-gem="${g}" style="width:${size}px;height:${size}px"><b></b></i>`;
+    el.style.cssText=`left:${x}px;top:${y}px`;
+    document.body.appendChild(el); flying[g]++;
+    el.animate([
+      {transform:'translate(0,0) scale(1)'},
+      {transform:`translate(${dx*.25}px,${dy*.25-pitch}px) scale(1.2)`,offset:.35},
+      {transform:`translate(${dx}px,${dy}px) scale(${13/size})`}
+    ],{duration:520,delay:n*45,easing:'cubic-bezier(.45,0,.55,1)',fill:'both'}).onfinish=()=>{
+      el.remove(); if(gen!==flightGen) return;
+      flying[g]--; renderChips();
+      const c=$(`#gems .chip[data-t="${g}"]`); c&&c.animate([{transform:'scale(1)'},{transform:'scale(1.25)'},{transform:'scale(1)'}],{duration:200});
+    };
+  });
 }
 function buildPiece(container,p,unit){
   const s=SHAPES[p.s];
@@ -139,7 +168,9 @@ function toast(text){
 function placePiece(i,r,c){
   const m=resolveMove(S,i,r,c), nl=m.lines;
   S.lines=(S.lines||0)+nl;
+  if(!reduced) flyGems(m.freed);
   render();
+  if(!reduced) m.freed.slice(0,8).forEach(k=>gemAttr(cellEls[k],0));   // the flying copy replaces the tile's gem
   m.placed.forEach(k=>cellEls[k].classList.add('land'));
   buzz(nl?[10,30,10]:8);
   const finish=()=>{
