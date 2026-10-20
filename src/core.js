@@ -156,6 +156,7 @@ function weightFor(s,d,fill){
   const w=cat==='s'?2-1.1*d+4*crowd:cat==='m'?2.2:.5+1.1*d-2.2*crowd;
   return Math.max(.05,w)*s.share;
 }
+export const activeGems=S=>S.goal.type==='score'?[]:S.goal.targets.filter(t=>S.got[t.g]<t.need).map(t=>t.g);
 export function deal(S){
   const rng=mulberry32(hash(S.seed^Math.imul(S.deals+1,2654435761)));
   S.deals++;
@@ -165,18 +166,29 @@ export function deal(S){
   const total=weights.reduce((a,b)=>a+b,0);
   const pick=()=>{let x=rng()*total;for(let i=0;i<SHAPES.length;i++){x-=weights[i];if(x<=0)return i}return SHAPES.length-1};
   const wantClear=fill>.4&&rng()<.55+.35*(1-S.d);
-  const colorOf=()=>1+Math.floor(rng()*5);
+  const act=activeGems(S);
+  const piece=s=>{
+    const n=SHAPES[s].n,g=new Array(n).fill(0);
+    if(act.length&&S.type==='rush')g.fill(act[0]);
+    else if(act.length&&S.type==='gems'&&rng()<1/3)
+      for(let k=1+Math.floor(rng()*2);k--;)g[Math.floor(rng()*n)]=act[Math.floor(rng()*act.length)];   // may collide: 1-2 gems
+    return {s,c:1+Math.floor(rng()*5),g};
+  };
   for(let a=0;a<40;a++){
     const set=[pick(),pick(),pick()];
     if(wantClear&&a<25&&!set.some(i=>canClear(occ,SHAPES[i]))) continue;
     if(!solvable(occ,set,25000)) continue;
-    return set.map(s=>({s,c:colorOf()}));
+    return set.map(piece);
   }
   // Fallback: small pieces that fit, verified; three singles always work.
   const fitting=SHAPES.map((s,i)=>i).filter(i=>SHAPES[i].n<=3&&anyFit(occ,SHAPES[i]));
   for(let a=0;a<30&&fitting.length;a++){
     const set=[0,0,0].map(()=>fitting[Math.floor(rng()*fitting.length)]);
-    if(solvable(occ,set,25000)) return set.map(s=>({s,c:colorOf()}));
+    if(solvable(occ,set,25000)) return set.map(piece);
   }
-  return [0,0,0].map(()=>({s:SINGLE,c:colorOf()}));
+  return [SINGLE,SINGLE,SINGLE].map(piece);
+}
+export function startState(level,fails,salt,type){
+  const L=makeLevel(level,fails,salt,type),S={...L,got:[0,0,0,0,0,0],score:0,combo:0,idle:0,deals:0};
+  S.tray=deal(S);return S;
 }

@@ -72,3 +72,35 @@ test('gem rush', () => {
     L.color.forEach((v, i) => assert.equal(L.gem[i], v ? t.g : 0));
   }
 });
+
+import { deal, startState, activeGems, SHAPES } from '../src/core.js';
+
+test('score pieces carry no gems, g matches cell count', () => {
+  const S = startState(12, 0, 0, 'score');
+  for (let k = 0; k < 50; k++) for (const p of deal(S)) {
+    assert.equal(p.g.length, SHAPES[p.s].n); assert.ok(p.g.every(g => g === 0));
+  }
+});
+test('rush pieces are all gems until the target is met', () => {
+  const S = startState(30, 0, 0, 'rush'), g = S.goal.targets[0].g;
+  for (const p of deal(S)) assert.ok(p.g.every(x => x === g));
+  S.got[g] = S.goal.targets[0].need;
+  assert.deepEqual(activeGems(S), []);
+  for (const p of deal(S)) assert.ok(p.g.every(x => x === 0));
+});
+test('gem goal pieces: about a third carry 1-2 gems of active colours only', () => {
+  const S = startState(60, 0, 0, 'gems'), done = S.goal.targets[0];
+  S.got[done.g] = done.need;
+  let pieces = 0, withGems = 0;
+  for (let k = 0; k < 300; k++) for (const p of deal(S)) {
+    pieces++; const n = p.g.filter(Boolean).length;
+    if (n) { withGems++; assert.ok(n <= 2); }
+    assert.ok(!p.g.includes(done.g));
+    p.g.forEach(x => assert.ok(x === 0 || activeGems(S).includes(x)));
+  }
+  assert.ok(withGems / pieces > 0.2 && withGems / pieces < 0.5);
+});
+test('deal is deterministic', () => {
+  const a = startState(44, 2, 1), b = startState(44, 2, 1);
+  assert.deepEqual(a.tray, b.tray); assert.deepEqual(deal(a), deal(b));
+});
