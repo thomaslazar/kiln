@@ -13,8 +13,8 @@ another, each with a small goal.
    Every tray of three pieces can be placed in some order.
 4. Nobody gets stuck on one level. Help comes in steps: continues are always on offer
    when a player has one, a free continue arrives after 2 fails, and from the 4th failed
-   attempt on each retry has lower targets. The starting blocks never get fewer, they
-   only move.
+   attempt on each retry has targets 10% lower (of the original), down to at most 60%,
+   and slightly smaller pieces. The starting blocks never get fewer, they only move.
 5. Short, plain UI copy in sentence case.
 6. Relaxed, not punishing. A human loses sometimes; the balance bot wins nearly always.
 
@@ -28,7 +28,7 @@ in a row, and a level keeps its type on retry and on “New layout”.
   No gems.
 - **Gem goals**: free gems of 1 to 5 colours, each colour with its own target. Sometimes
   many colours with small counts, sometimes one colour with a big count. The total grows
-  from about 10 gems early to about 27 late. Pieces often carry 1 or 2 gems, and every
+  from about 15 gems early to about 40 late. Pieces often carry 1 or 2 gems, and every
   tray has at least one gem while a colour is still open. Once a colour is done, no new
   gems of it appear.
 - **Gem rush**: free many gems of one colour, about 40 early up to 400. Every piece

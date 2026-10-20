@@ -117,6 +117,7 @@ export function makeLevel(level,fails,salt,type=levelType(level)){
   const seed=hash(level*7919+fails*104729+salt*15485863+77);
   const rng=mulberry32(seed);
   const d=level===1?0:difficulty(level,fails), d0=level===1?0:difficulty(level,0);
+  const ease=Math.max(.6,1-.1*Math.max(0,fails-3));   // targets: -10% per fail from the 4th, floor 60%; d still eases the pieces
   const color=new Array(64).fill(0), gem=new Array(64).fill(0);
   const target=startsEmpty(level)?0:Math.round((.04+.2*d0)*64);   // block count ignores fails, only placement moves
   const small=SHAPES.map((s,i)=>i).filter(i=>SHAPES[i].n<=4);
@@ -134,19 +135,19 @@ export function makeLevel(level,fails,salt,type=levelType(level)){
   }
   const cells=color.map((v,i)=>v?i:-1).filter(i=>i>=0);
   let goal;
-  if(type==='score') goal={type,need:Math.round((100+2900*d*d)/10)*10};
+  if(type==='score') goal={type,need:Math.round((100+2900*d0*d0)*ease/10)*10};
   else if(type==='gems'){
     const gs=[1,2,3,4,5];
     for(let i=4;i>0;i--){const j=Math.floor(rng()*(i+1));[gs[i],gs[j]]=[gs[j],gs[i]]}
     // colour count 1-5 picked per level (stable on retry); a growing gem budget is split across it
-    const k=1+hash(level*53+7)%5, need=Math.max(2,Math.round((10+18*d)/k));
+    const k=1+hash(level*53+7)%5, need=Math.max(2,Math.round((10+32*d0)*ease/k));
     const targets=gs.slice(0,k).map(g=>({g,need}));
     cells.forEach(i=>{if(rng()<.25)gem[i]=targets[Math.floor(rng()*targets.length)].g});
     goal={type,targets};
   }else{
     const g=1+Math.floor(rng()*5);
     cells.forEach(i=>gem[i]=g);
-    goal={type,targets:[{g,need:Math.min(400,Math.round((40+380*d)/10)*10)}]};
+    goal={type,targets:[{g,need:Math.round(Math.min(400,40+380*d0)*ease/10)*10}]};
   }
   return {seed,d,type,color,gem,goal};
 }

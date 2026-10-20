@@ -76,6 +76,21 @@ test('gem goals vary colour count and grow with level', () => {
   const avg = (a, b) => { let s = 0; for (let lv = a; lv <= b; lv++) s += total(lv); return s / (b - a + 1); };
   assert.ok(avg(60, 90) > avg(3, 20) + 8);
 });
+test('retries ease targets by 10% per fail from the 4th, never below 60%', () => {
+  const total = L => L.goal.type === 'score' ? L.goal.need : L.goal.targets.reduce((a, t) => a + t.need, 0);
+  for (const type of ['score', 'gems', 'rush']) for (let lv = 6; lv <= 60; lv++) {
+    const base = total(makeLevel(lv, 0, 0, type));
+    for (const f of [1, 2, 3]) assert.equal(total(makeLevel(lv, f, 0, type)), base, `${type} ${lv} fail ${f}`);
+    let prev = base;
+    for (let f = 4; f <= 12; f++) {
+      const n = total(makeLevel(lv, f, 0, type));
+      assert.ok(n <= prev, `${type} ${lv}: never harder on a later retry`);
+      assert.ok(n >= Math.floor(base * 0.6) - 10, `${type} ${lv} fail ${f}: ${n} of ${base}`);
+      prev = n;
+    }
+  }
+  assert.deepEqual([0, 4, 5, 6, 7, 8].map(f => makeLevel(9, f, 0, 'rush').goal.targets[0].need), [170, 150, 140, 120, 100, 100]);
+});
 test('gem rush', () => {
   for (let lv = 6; lv <= 90; lv++) {
     const L = makeLevel(lv, 0, 0, 'rush'), [t] = L.goal.targets;

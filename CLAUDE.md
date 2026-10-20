@@ -50,7 +50,9 @@ Sections are marked `/* ---------- name ---------- */`.
   5-level sawtooth, eased by 0.18 per fail from the 4th). `levelType(level)` is cached and
   depends on the level only. `startsEmpty(level)`. `makeLevel(level, fails, salt, type)`
   places starting blocks (count from `difficulty(level, 0)`, exact fill) and builds the
-  goal: `{type:'score', need}` or `{type:'gems'|'rush', targets:[{g, need}]}`.
+  goal: `{type:'score', need}` or `{type:'gems'|'rush', targets:[{g, need}]}`. Targets come
+  from `difficulty(level, 0)` times `ease` (-10% per fail from the 4th, floor 60%); the
+  eased `d` only drives piece weights in `deal`.
 - **fair dealing**: `weightFor` (size by fill and `d`, filler only above 45% fill, 3x3
   doubled), `activeGems(S)`, `deal(S)` (three pieces `{s, c, g}`, `g[j]` = gem per cell;
   always passes `solvable`; fallbacks to small pieces, then three singles; gem levels
