@@ -98,10 +98,29 @@ export function solvable(occ,list,budget){
 }
 
 /* ---------- difficulty & levels ---------- */
+const chStarts=[1,41];   // chapter 1 is 40 levels, later ones 30-40; chStarts[k-1] = start of chapter k
+export function chapterOf(level){
+  let k=1;
+  for(;;k++){
+    if(k>=chStarts.length)chStarts.push(chStarts[k-1]+30+hash(k+1)%11);
+    if(level<chStarts[k])return{n:k,start:chStarts[k-1],length:chStarts[k]-chStarts[k-1]};
+  }
+}
 export function difficulty(level,fails){
-  const base=Math.min(.75,(level-1)/50);
+  const c=chapterOf(level);
+  let base=Math.min(.75,(level-1)/50);
+  if(c.n>1){const f=(9+hash(c.n)%6)/50;base=f+(.75-f)*Math.min(1,(level-c.start)/c.length/.7)}   // each chapter dips to a level 10-15 floor, then ramps
   const saw=[0,.06,.12,.18,-.08][(level-1)%5];   // gentle waves, every 5th level is a breather
   return Math.max(0,Math.min(1,base+saw-.18*Math.max(0,fails-3)));   // fails 1-3 retry at the same difficulty
+}
+const lookCache=['normal','normal','normal'];   // index = level, 1-2 always normal
+export function levelLook(level){
+  for(let l=lookCache.length;l<=level;l++){
+    const r=hash(l*53+7)%100;
+    lookCache[l]=lookCache[l-1]!=='normal'?'normal':r<62?'normal':r<81?'mono':'pattern';   // raw 62/19/19; the no-two-in-a-row rule lands near 72/14/14
+  }
+  const mode=lookCache[level];
+  return{mode,pattern:mode==='pattern'?['rows','columns','diagonal','rings'][hash(level*71+3)%4]:null};
 }
 const TYPES=['score','gems','rush'],typeCache=['score','score','score'];   // index = level, 1-2 always score
 export function levelType(level){
