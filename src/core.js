@@ -133,7 +133,7 @@ export function makeLevel(level,fails,salt,type=levelType(level)){
   }
   const cells=color.map((v,i)=>v?i:-1).filter(i=>i>=0);
   let goal;
-  if(type==='score') goal={type,need:Math.round((100+2600*d)/10)*10};
+  if(type==='score') goal={type,need:Math.round((100+2900*d*d)/10)*10};
   else if(type==='gems'){
     const gs=[1,2,3,4,5];
     for(let i=4;i>0;i--){const j=Math.floor(rng()*(i+1));[gs[i],gs[j]]=[gs[j],gs[i]]}
