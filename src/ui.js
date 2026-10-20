@@ -1,4 +1,4 @@
-import {N,SHAPES,occOf,fits,fullLines,anyFit,startState,deal,resolveMove,clearCells,won,fromV1,validSave,difficulty,
+import {N,SHAPES,occOf,fits,fullLines,anyFit,startState,deal,resolveMove,clearCells,won,fromV1,validSave,
   rescueTray,comboContinue,levelContinue,freeContinue} from './core.js';
 
 const KEY = 'kiln-v2', OLD = 'kiln-v1';
@@ -229,12 +229,11 @@ function afterMove(){
   const occ=occOf(S.color);
   if(!S.tray.some(t=>t&&anyFit(occ,SHAPES[t.s]))){
     const retry={label:t('tryAgain'),fn:()=>{S.fails=(S.fails||0)+1;startLevel()}};
-    const text=t('lostText')+' '+(S.fails+1>=4&&difficulty(S.level,S.fails+1)<S.d?t('lostEasier'):t('lostFresh'));
     const free=freeContinue(S), bank=S.continues||0;
-    if(!free&&!bank) return showSheet(t('lostTitle'),text,[{...retry,primary:true}]);
+    if(!free&&!bank) return showSheet(t('lostTitle'),'',[{...retry,primary:true}]);
     const rescue=rescueTray(S);   // shown before the player decides
     const preview=rescue.map(p=>{const pc=document.createElement('div');pc.className='piece';buildPiece(pc,p,'16px');return pc});
-    showSheet(t('lostTitle'),text,[
+    showSheet(t('lostTitle'),'',[
       {label:free?t('freeContinue'):t('useContinue',{n:bank}),primary:true,fn:()=>{
         if(free) S.freeLevel=S.level; else S.continues--;
         S.tray=rescue; save(); render();
