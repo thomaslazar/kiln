@@ -1,48 +1,42 @@
-// Balance check: plays every level range with a simple bot and reports win rates.
-// Usage: node tools/sim.mjs [levels=3,8,15,25,35,50,80] [runsPerLevel=6]
-import { SHAPES, occOf, fits, placeOcc, fullLines, solvable, makeLevel, deal } from '../src/core.js';
+// Balance check: plays every level type with a greedy bot and reports win rates.
+// Usage: node tools/sim.mjs [levels=3,8,15,25,35,50,80] [runsPerLevel=6] [types=score,gems,rush]
+import { SHAPES, occOf, fits, placeOcc, solvable, startState, deal, resolveMove, clearCells, won } from '../src/core.js';
 
-function sim(level, fails){
-  const L = makeLevel(level, fails, 0);
-  const S = { seed:L.seed, d:L.d, color:L.color, gem:L.gem, goal:L.goal, progress:0, deals:0 };
-  let moves = 0, prog = 0, maxDealMs = 0;
-  while (moves < 300 && prog < L.goal.need) {
-    const t0 = Date.now(); const tray = deal(S); maxDealMs = Math.max(maxDealMs, Date.now() - t0);
-    while (tray.length) {
-      let best = null;
-      tray.forEach((p, i) => {
-        const s = SHAPES[p.s], o = occOf(S.color);
-        for (let r = 0; r <= 8 - s.h; r++) for (let c = 0; c <= 8 - s.w; c++) {
-          if (!fits(o, s, r, c)) continue;
-          const n = placeOcc(o, s, r, c);
-          const rest = tray.filter((_, j) => j !== i).map(t => t.s);
-          const sc = (solvable(n, rest, 5000) ? 100 : 0) - n.reduce((a, b) => a + b, 0) + Math.random();
-          if (!best || sc > best.sc) best = { sc, r, c, i };
-        }
-      });
-      if (!best) return { won:false, moves, prog, need:L.goal.need, maxDealMs };
-      const p = tray[best.i], s = SHAPES[p.s]; tray.splice(best.i, 1);
-      for (const [dr, dc] of s.cells) S.color[(best.r + dr) * 8 + best.c + dc] = p.c;
-      const f = fullLines(occOf(S.color)), clr = new Set();
-      f.rows.forEach(r => { for (let c = 0; c < 8; c++) clr.add(r * 8 + c); });
-      f.cols.forEach(c => { for (let r = 0; r < 8; r++) clr.add(r * 8 + c); });
-      if (L.goal.type === 'lines') prog += f.rows.length + f.cols.length;
-      else clr.forEach(k => { if (S.gem[k]) prog++; });
-      clr.forEach(k => { S.color[k] = 0; S.gem[k] = false; });
-      moves++;
+function sim(level, type){
+  const S = startState(level, 0, 0, type), cap = type === 'rush' ? 2000 : 300;
+  let moves = 0, maxDealMs = 0;
+  while (moves < cap && !won(S)) {
+    if (S.tray.every(p => !p)) {
+      const t0 = Date.now(); S.tray = deal(S); maxDealMs = Math.max(maxDealMs, Date.now() - t0);
     }
+    let best = null;
+    S.tray.forEach((p, i) => {
+      if (!p) return;
+      const s = SHAPES[p.s], o = occOf(S.color);
+      for (let r = 0; r <= 8 - s.h; r++) for (let c = 0; c <= 8 - s.w; c++) {
+        if (!fits(o, s, r, c)) continue;
+        const n = placeOcc(o, s, r, c);
+        const rest = S.tray.filter((t, j) => t && j !== i).map(t => t.s);
+        const sc = (solvable(n, rest, 5000) ? 100 : 0) - n.reduce((a, b) => a + b, 0) + Math.random();
+        if (!best || sc > best.sc) best = { sc, r, c, i };
+      }
+    });
+    if (!best) break;
+    clearCells(S, resolveMove(S, best.i, best.r, best.c).cleared);
+    moves++;
   }
-  return { won: prog >= L.goal.need, moves, prog, need:L.goal.need, maxDealMs };
+  return { won: won(S), moves, maxDealMs };
 }
 
 const levels = (process.argv[2] || '3,8,15,25,35,50,80').split(',').map(Number);
 const runs = Number(process.argv[3] || 6);
-for (const lv of levels) {
-  let wins = 0, slow = 0;
+const types = (process.argv[4] || 'score,gems,rush').split(',');
+for (const type of types) for (const lv of levels) {
+  let wins = 0, slow = 0, moves = 0;
   for (let k = 0; k < runs; k++) {
-    const r = sim(lv + k, 0);
+    const r = sim(lv + k, type);
     if (r.won) wins++;
-    slow = Math.max(slow, r.maxDealMs);
+    slow = Math.max(slow, r.maxDealMs); moves += r.moves;
   }
-  console.log(`levels ${lv}-${lv + runs - 1}: bot won ${wins}/${runs}, slowest deal ${slow} ms`);
+  console.log(`${type} levels ${lv}-${lv + runs - 1}: bot won ${wins}/${runs}, slowest deal ${slow} ms, avg moves ${Math.round(moves / runs)}`);
 }
