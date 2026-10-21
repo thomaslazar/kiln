@@ -18,6 +18,7 @@ async function setLang(code){
   T = {...en, ...tr}; lang = code; document.documentElement.lang = code;
   $('.lvl small').textContent = t('level');
   $('#menuBtn').setAttribute('aria-label', t('menu')); $('#board').setAttribute('aria-label', t('board'));
+  $('#turnText').textContent = t('turnPhone');
 }
 function pickLang(){
   try{const l = localStorage.getItem(LANG_KEY); if(LANGS[l]) return l}catch(e){}
@@ -333,6 +334,8 @@ function openInfo(){
 $('#menuBtn').addEventListener('click',()=>{if(!busy&&!drag) openMenu()});
 
 /* ---------- boot ---------- */
+// No zoom: iOS ignores user-scalable=no, so block Safari's pinch gestures (double-tap is off via touch-action)
+for(const ev of ['gesturestart','gesturechange']) document.addEventListener(ev,e=>e.preventDefault());
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});   // offline play
 S=load();
 if(S&&S.color){render();afterMove()}

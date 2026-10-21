@@ -139,6 +139,13 @@ header{width:var(--size);display:flex;justify-content:space-between;align-items:
 .pick{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px;padding:0 4px;color:var(--muted);font-size:1.05rem;font-weight:600}
 .pick select{font:inherit;font-weight:700;color:var(--ink);background:var(--well);border:0;border-radius:12px;padding:10px 12px;max-width:60%}
 .pick select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+/* phones held sideways: the board does not fit, so ask to turn upright (iOS ignores the manifest lock) */
+#turn{display:none}
+@media (orientation:landscape) and (max-height:500px){
+  main,#tray,.sheet{display:none!important}
+  #turn{display:flex;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;padding:24px;background:var(--bg)}
+  #turn p{margin:0;max-width:22em;text-align:center;font-size:1.2rem;font-weight:700;color:var(--ink)}
+}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:0s!important;transition-duration:0s!important}
 }

@@ -111,6 +111,10 @@ Sections are marked `/* ---------- name ---------- */`.
   continue, `afterMove` previews `rescueTray(S)` in `#sheetExtra` (via `showSheet`'s 4th
   argument) next to "Try again".
 - Reduced motion: no flights, toasts show statically.
+- No zoom: viewport `maximum-scale=1, user-scalable=no`, `touch-action:none` on `body`
+  (no double-tap zoom), and Safari `gesturestart`/`gesturechange` are cancelled (iOS ignores
+  `user-scalable`). Phones held sideways (`orientation:landscape` and height ≤ 500px) see
+  `#turn` ("turnPhone") instead of the game; the manifest locks portrait where supported.
 
 ## Working rules
 
