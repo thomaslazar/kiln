@@ -15,6 +15,9 @@ another, each with a small goal.
    when a player has one, a free continue arrives after 2 fails, and from the 4th failed
    attempt on each retry has targets 10% lower (of the original), down to at most 60%,
    and slightly smaller pieces. The starting blocks never get fewer, they only move.
+   Players who want no easing can switch it off under Info (“Easier after 4 failed
+   tries”); fails still count, and switching it back on applies them to the current
+   level at once. Continues, including the free one, stay either way.
 5. Short, plain UI copy in sentence case.
 6. Relaxed, not punishing. A human loses sometimes; the balance bot wins nearly always.
 7. Fresh, not tiring: levels come in chapters that dip in difficulty and change look, and

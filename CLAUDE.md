@@ -56,7 +56,9 @@ Sections are marked `/* ---------- name ---------- */`.
   places starting blocks (count from `difficulty(level, 0)`, exact fill) and builds the
   goal: `{type:'score', need}` or `{type:'gems'|'rush', targets:[{g, need}]}`. Targets come
   from `difficulty(level, 0)` times `ease` (-10% per fail from the 4th, floor 60%); the
-  eased `d` only drives piece weights in `deal`.
+  eased `d` only drives piece weights in `deal`. `makeLevel(..., easy)` and
+  `startState(..., easy)` take the "easier retries" switch: with `easy` false, fails still
+  seed the layout but never ease targets or `d`.
 - **chapters**: `chapterOf(level)` gives `{n, start, length}` (chapter 1 = 1-40, later
   `30 + hash(k) % 11`, cached). `difficulty` is chapter aware: later chapters start at the
   base of level `10 + hash(k) % 6` and ramp to 0.75 over 70% of the chapter; the 5-level
@@ -104,7 +106,10 @@ Sections are marked `/* ---------- name ---------- */`.
 - Sheets: `showSheet(title, text, buttons, extra, dismiss)`; `dismiss` sheets (menu, Info,
   start-over question, share fallback) close on a tap outside or Escape, win and loss
   sheets never do. Menu: keep playing, new layout, start over, Info. `openInfo()` holds
-  "Share Kiln", the GitHub link, the language dropdown and Back.
+  "Share Kiln", the GitHub link, the language dropdown, the "easier retries" checkbox
+  (`localStorage['kiln-easy']`, default on; toggling rebuilds the current goal and `S.d`
+  via `makeLevel` with the same seed, so layout and progress stay, then checks for a win)
+  and Back.
 - "Share Kiln": `share()` uses `navigator.share` (title, `shareText`, page URL without
   query), else copies the URL (`linkCopied` toast), else shows it as selectable sheet text.
 - Continues: every reward calls `earnContinue()`. On a loss with a free or banked

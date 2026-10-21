@@ -1,4 +1,4 @@
-import {N,SHAPES,chapterOf,levelLook,occOf,fits,fullLines,anyFit,startState,deal,resolveMove,clearCells,won,fromV1,validSave,
+import {N,SHAPES,chapterOf,makeLevel,levelLook,occOf,fits,fullLines,anyFit,startState,deal,resolveMove,clearCells,won,fromV1,validSave,
   rescueTray,comboContinue,levelContinue,freeContinue} from './core.js';
 import {chapterTheme,safeTile,monoTile,patternPos,patternColour,symbolSVG} from './theme.js';
 
@@ -8,7 +8,9 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- language ---------- */
 // Texts live in lang/<code>.json; lang/languages.json lists them. Missing keys fall back to English.
-const LANG_KEY = 'kiln-lang';
+const LANG_KEY = 'kiln-lang', EASY_KEY = 'kiln-easy';
+let easy = true;   // easier retries: fails from the 4th lower targets
+try{ easy = localStorage.getItem(EASY_KEY) !== 'off'; }catch(e){}
 const getJSON = f => fetch(f).then(r => r.json());
 const LANGS = await getJSON('lang/languages.json');
 let lang, T;
@@ -46,7 +48,7 @@ function load(){
 }
 function startLevel(){
   flightGen++; flying=[0,0,0,0,0,0];   // gems still in the air belong to the old level
-  Object.assign(S,startState(S.level,S.fails,S.salt));
+  Object.assign(S,startState(S.level,S.fails,S.salt,undefined,easy));
   save(); render();
 }
 
@@ -329,7 +331,15 @@ function openInfo(){
     try{localStorage.setItem(LANG_KEY,sel.value)}catch(e){}
     await setLang(sel.value); render(); openInfo();   // reopen so the sheet itself switches language
   });
-  box.insertBefore(repo,back); box.insertBefore(row,back);
+  // easier retries: switching applies the fails to the current attempt at once
+  const er=document.createElement('label'), cb=Object.assign(document.createElement('input'),{type:'checkbox',checked:easy});
+  er.className='pick'; er.append(t('easierRetries'),cb);
+  cb.addEventListener('change',()=>{
+    easy=cb.checked; try{localStorage.setItem(EASY_KEY,easy?'on':'off')}catch(e){}
+    const L=makeLevel(S.level,S.fails,S.salt,S.type,easy); S.goal=L.goal; S.d=L.d;   // same layout, only targets and piece sizes change
+    save(); render(); if(won(S)) afterMove();
+  });
+  box.insertBefore(repo,back); box.insertBefore(row,back); box.insertBefore(er,back);
 }
 $('#menuBtn').addEventListener('click',()=>{if(!busy&&!drag) openMenu()});
 

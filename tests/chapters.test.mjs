@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chapterOf, difficulty, levelLook, hash } from '../src/core.js';
+import { chapterOf, difficulty, levelLook, hash, makeLevel, startState } from '../src/core.js';
 
 test('chapter 1 is levels 1-40, later chapters 30-40 levels back to back', () => {
   assert.deepEqual(chapterOf(1), { n: 1, start: 1, length: 40 });
@@ -34,6 +34,17 @@ test('later chapters dip to the level 10-15 floor and ramp to the ceiling', () =
 test('easing from the 4th fail still works in later chapters', () => {
   assert.ok(Math.abs(difficulty(100, 4) - Math.max(0, difficulty(100, 0) - .18)) < 1e-9);
   assert.equal(difficulty(100, 3), difficulty(100, 0));
+});
+test('with easier retries off, fails never lower targets or difficulty, layout unchanged', () => {
+  const needs = g => g.type === 'score' ? [g.need] : g.targets.map(t => t.need);   // gem colours may differ per attempt
+  for (const type of ['score', 'gems', 'rush']) for (const lv of [9, 30, 75]) for (const f of [4, 6, 9]) {
+    const hard = makeLevel(lv, f, 0, type, false), easy = makeLevel(lv, f, 0, type), base = makeLevel(lv, 0, 0, type);
+    assert.deepEqual(needs(hard.goal), needs(base.goal), `${type} ${lv} fail ${f}: targets`);
+    assert.equal(hard.d, base.d);
+    assert.deepEqual(hard.color, easy.color); assert.deepEqual(hard.gem, easy.gem);   // same attempt layout
+    assert.deepEqual(hard.goal.targets?.map(t => t.g), easy.goal.targets?.map(t => t.g));   // same gem colours
+  }
+  assert.deepEqual(startState(30, 6, 0, 'score', false).goal, makeLevel(30, 0, 0, 'score').goal);
 });
 test('level looks: about 70/15/15, never two special looks in a row, stable', () => {
   const n = { normal: 0, mono: 0, pattern: 0 }, kinds = new Set();

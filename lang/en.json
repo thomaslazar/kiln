@@ -43,5 +43,6 @@
   "infoText": "A relaxed block puzzle. No ads, no accounts, no tracking.",
   "sourceCode": "Source code on GitHub",
   "back": "Back",
-  "turnPhone": "Turn your phone upright to play."
+  "turnPhone": "Turn your phone upright to play.",
+  "easierRetries": "Easier after 4 failed tries"
 }

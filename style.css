@@ -138,6 +138,7 @@ header{width:var(--size);display:flex;justify-content:space-between;align-items:
 .btns button.primary{background:var(--accent);color:#fff}
 .pick{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px;padding:0 4px;color:var(--muted);font-size:1.05rem;font-weight:600}
 .pick select{font:inherit;font-weight:700;color:var(--ink);background:var(--well);border:0;border-radius:12px;padding:10px 12px;max-width:60%}
+.pick input[type=checkbox]{width:24px;height:24px;margin:0 6px 0 0;accent-color:var(--accent)}
 .pick select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 /* phones held sideways: the board does not fit, so ask to turn upright (iOS ignores the manifest lock) */
 #turn{display:none}

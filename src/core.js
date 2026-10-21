@@ -132,11 +132,12 @@ export function levelType(level){
   return typeCache[level];
 }
 export const startsEmpty=level=>level===1||hash(level*97+13)%10<3;
-export function makeLevel(level,fails,salt,type=levelType(level)){
+export function makeLevel(level,fails,salt,type=levelType(level),easy=true){
   const seed=hash(level*7919+fails*104729+salt*15485863+77);
   const rng=mulberry32(seed);
-  const d=level===1?0:difficulty(level,fails), d0=level===1?0:difficulty(level,0);
-  const ease=Math.max(.6,1-.1*Math.max(0,fails-3));   // targets: -10% per fail from the 4th, floor 60%; d still eases the pieces
+  const ef=easy?fails:0;   // easier retries off: fails still vary the layout (seed) but never ease
+  const d=level===1?0:difficulty(level,ef), d0=level===1?0:difficulty(level,0);
+  const ease=Math.max(.6,1-.1*Math.max(0,ef-3));   // targets: -10% per fail from the 4th, floor 60%; d still eases the pieces
   const color=new Array(64).fill(0), gem=new Array(64).fill(0);
   const target=startsEmpty(level)?0:Math.round((.04+.2*d0)*64);   // block count ignores fails, only placement moves
   const small=SHAPES.map((s,i)=>i).filter(i=>SHAPES[i].n<=4);
@@ -247,8 +248,8 @@ export function rescueTray(S){
 export const comboContinue=(S,m)=>S.type==='score'&&m.lines>0&&S.combo>0&&S.combo%10===0;   // every 10 in a streak
 export const levelContinue=(level,best)=>level%5===0&&level+1>best;   // every 5th level, first clear only
 export const freeContinue=S=>S.fails>=2&&S.freeLevel!==S.level;   // once per level, from the 3rd attempt
-export function startState(level,fails,salt,type){
-  const L=makeLevel(level,fails,salt,type),S={...L,got:[0,0,0,0,0,0],score:0,combo:0,idle:0,deals:0};
+export function startState(level,fails,salt,type,easy=true){
+  const L=makeLevel(level,fails,salt,type,easy),S={...L,got:[0,0,0,0,0,0],score:0,combo:0,idle:0,deals:0};
   S.tray=deal(S);return S;
 }
 
