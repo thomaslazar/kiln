@@ -38,5 +38,9 @@
   "chapterBegins": "Chapter {n} begins.",
   "share": "Share Kiln",
   "shareText": "A relaxed block puzzle with no ads. Give it a try:",
-  "linkCopied": "Link copied"
+  "linkCopied": "Link copied",
+  "info": "Info",
+  "infoText": "A relaxed block puzzle. No ads, no accounts, no tracking.",
+  "sourceCode": "Source code on GitHub",
+  "back": "Back"
 }

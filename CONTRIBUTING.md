@@ -35,7 +35,7 @@ No code changes needed.
    missing or extra, a text is empty, or a placeholder differs from English.
 5. Open a pull request.
 
-The game picks a language from the phone’s settings and can be switched in the menu.
+The game picks a language from the phone’s settings and can be switched under Info in the menu.
 Keys missing from a language fall back to English, but the tests require all of them.
 
 ## Tests and balance

@@ -38,5 +38,9 @@
   "chapterBegins": "Kapitel {n} beginnt.",
   "share": "Kiln teilen",
   "shareText": "Ein entspanntes Blockpuzzle ohne Werbung. Probier es aus:",
-  "linkCopied": "Link kopiert"
+  "linkCopied": "Link kopiert",
+  "info": "Info",
+  "infoText": "Ein entspanntes Blockpuzzle. Keine Werbung, keine Konten, kein Tracking.",
+  "sourceCode": "Quellcode auf GitHub",
+  "back": "Zurück"
 }

@@ -34,8 +34,8 @@ tracking. Progress is saved in your browser.
 
 ## Languages
 
-English and German. The game follows your phone’s language and can be switched in the
-menu. Want Kiln in your language? Translating is one JSON file, no coding needed:
+English and German. The game follows your phone’s language and can be switched under
+Info in the menu. Want Kiln in your language? Translating is one JSON file, no coding needed:
 see [Add a language](CONTRIBUTING.md#add-or-improve-a-language).
 
 ## Run locally

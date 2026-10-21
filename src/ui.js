@@ -280,8 +280,9 @@ function afterMove(){
 }
 
 /* ---------- sheet & menu ---------- */
-function showSheet(title,text,buttons,extra){
-  sheetOpen=true;
+let sheetDismiss=false;   // menu-like sheets close on a tap outside or Escape; win and loss sheets do not
+function showSheet(title,text,buttons,extra,dismiss=false){
+  sheetOpen=true; sheetDismiss=dismiss;
   $('#sheetTitle').textContent=title; $('#sheetText').textContent=text; $('#sheetText').hidden=!text;
   $('#sheetExtra').replaceChildren(...(extra||[])); $('#sheetExtra').hidden=!extra;
   const box=$('#sheetBtns'); box.innerHTML='';
@@ -294,13 +295,15 @@ function showSheet(title,text,buttons,extra){
   box.firstElementChild&&box.firstElementChild.focus({preventScroll:true});
 }
 function hideSheet(){$('#sheet').hidden=true;sheetOpen=false}
+$('#sheet').addEventListener('click',e=>{if(e.target===e.currentTarget&&sheetDismiss) hideSheet()});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetOpen&&sheetDismiss) hideSheet()});
 // The phone's share menu where there is one, otherwise copy the link.
 async function share(){
   const url=location.origin+location.pathname;
   try{
     if(navigator.share) return await navigator.share({title:'Kiln',text:t('shareText'),url});
     await navigator.clipboard.writeText(url); toast(t('linkCopied'));
-  }catch(e){if(e.name!=='AbortError') showSheet(t('share'),url,[{label:t('keepPlaying'),primary:true}])}   // cancelled share: nothing to say
+  }catch(e){if(e.name!=='AbortError') showSheet(t('share'),url,[{label:t('keepPlaying'),primary:true}],null,true)}   // cancelled share: nothing to say
 }
 function openMenu(){
   showSheet(t('menuTitle',{n:S.level}),[t('statBest',{n:S.best||S.level}),t('statLines',{n:S.lines||0}),t('statContinues',{n:S.continues||0})].join('\n'),[
@@ -309,18 +312,23 @@ function openMenu(){
     {label:t('startOver'),fn:()=>showSheet(t('startOverTitle'),t('startOverText'),[
       {label:t('startOverConfirm'),primary:true,fn:()=>{S.level=1;S.fails=0;S.salt=0;startLevel()}},
       {label:t('cancel')}
-    ])},
-    {label:t('share'),fn:share}
-  ]);
+    ],null,true)},
+    {label:t('info'),fn:openInfo}
+  ],null,true);
+}
+function openInfo(){
+  showSheet('Kiln',t('infoText'),[{label:t('share'),fn:share},{label:t('back'),primary:true,fn:openMenu}],null,true);
+  const box=$('#sheetBtns'), back=box.lastElementChild;
+  const repo=Object.assign(document.createElement('a'),{href:'https://github.com/thomaslazar/kiln',target:'_blank',rel:'noopener',textContent:t('sourceCode')});
   // language: a native dropdown, so the list can grow
   const row=document.createElement('label'), sel=document.createElement('select');
   row.className='pick'; row.append(t('language'),sel);
   for(const [code,name] of Object.entries(LANGS)) sel.add(new Option(name,code,false,code===lang));
   sel.addEventListener('change',async()=>{
     try{localStorage.setItem(LANG_KEY,sel.value)}catch(e){}
-    await setLang(sel.value); render(); openMenu();   // reopen so the menu itself switches language
+    await setLang(sel.value); render(); openInfo();   // reopen so the sheet itself switches language
   });
-  $('#sheetBtns').appendChild(row);
+  box.insertBefore(repo,back); box.insertBefore(row,back);
 }
 $('#menuBtn').addEventListener('click',()=>{if(!busy&&!drag) openMenu()});
 
