@@ -2,7 +2,7 @@
 // Requests skip the browser's HTTP cache (GitHub Pages sends max-age=600) and revalidate
 // with the server, so a deploy shows up on the next launch. Offline, or after 3 s, the
 // cached copy is used.
-const CACHE = 'kiln-2';   // a new name drops the old cache, see activate
+const CACHE = 'kiln-2';   // a new name drops the old cache, see activate; keep the kiln- prefix
 const SHELL = ['./', 'index.html', 'style.css', 'src/core.js', 'src/theme.js', 'src/ui.js', 'manifest.webmanifest',
   'lang/languages.json', 'lang/en.json',   // other languages get cached the first time they load
   'fonts/bricolage-grotesque-latin.woff2',
@@ -13,7 +13,8 @@ self.addEventListener('install', e => {
   self.skipWaiting();
 });
 self.addEventListener('activate', e => e.waitUntil(
-  caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())));
+  // only Kiln's own old caches: other games on thomaslazar.github.io share this origin
+  caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE && (k === 'kiln' || k.startsWith('kiln-'))).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin) return;
