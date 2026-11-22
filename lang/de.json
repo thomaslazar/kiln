@@ -45,5 +45,19 @@
   "back": "Zurück",
   "turnPhone": "Dreh dein Handy hochkant, um zu spielen.",
   "easierRetries": "Leichter nach 4 Fehlversuchen",
-  "version": "Version {v}"
+  "version": "Version {v}",
+  "endless": "Endlos",
+  "levels": "Level",
+  "bestScore": "Bestwert {n}",
+  "score": "{n} Punkte",
+  "comboNow": "Kombo {n}",
+  "menuEndless": "Endlos",
+  "statBestScore": "Beste Punktzahl: {n}",
+  "statBestCombo": "Beste Kombo: {n}",
+  "newRun": "Neuer Lauf",
+  "runOverTitle": "Lauf vorbei",
+  "runOverText": "{n} Punkte.",
+  "newBest": "Neuer Bestwert!",
+  "newBestCombo": "Neue beste Kombo!",
+  "runBests": "Bestwert {n}, beste Kombo {c}."
 }

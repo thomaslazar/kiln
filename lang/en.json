@@ -45,5 +45,19 @@
   "back": "Back",
   "turnPhone": "Turn your phone upright to play.",
   "easierRetries": "Easier after 4 failed tries",
-  "version": "Version {v}"
+  "version": "Version {v}",
+  "endless": "Endless",
+  "levels": "Levels",
+  "bestScore": "Best {n}",
+  "score": "{n} points",
+  "comboNow": "Combo {n}",
+  "menuEndless": "Endless",
+  "statBestScore": "Best score: {n}",
+  "statBestCombo": "Best combo: {n}",
+  "newRun": "New run",
+  "runOverTitle": "Run over",
+  "runOverText": "{n} points.",
+  "newBest": "New best score!",
+  "newBestCombo": "New best combo!",
+  "runBests": "Best score {n}, best combo {c}."
 }

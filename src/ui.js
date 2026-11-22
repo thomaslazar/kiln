@@ -1,9 +1,9 @@
 import {N,SHAPES,chapterOf,makeLevel,levelLook,occOf,fits,fullLines,anyFit,startState,deal,resolveMove,clearCells,won,fromV1,validSave,
-  rescueTray,comboContinue,levelContinue,freeContinue} from './core.js';
+  rescueTray,comboContinue,levelContinue,freeContinue,startEndless,finishRun,validEndless} from './core.js';
 import {chapterTheme,safeTile,monoTile,patternPos,patternColour,symbolSVG} from './theme.js';
 import {BUILD} from './build.js';
 
-const KEY = 'kiln-v2', OLD = 'kiln-v1';
+const KEY = 'kiln-v2', OLD = 'kiln-v1', EKEY = 'kiln-endless', MODE_KEY = 'kiln-mode';
 const $ = s => document.querySelector(s);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -31,8 +31,23 @@ function pickLang(){
 await setLang(pickLang());
 
 /* ---------- state ---------- */
-let S;
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+// L: level save, E: endless run (null until the first run), S: whichever mode is live
+let L, E=null, mode='levels', S, hadSave=false;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(L)); if(E) localStorage.setItem(EKEY,JSON.stringify(E))}catch(e){}}
+function loadEndless(){try{const s=JSON.parse(localStorage.getItem(EKEY)); return validEndless(s)?s:null}catch(e){return null}}
+const seedNow=()=>crypto.getRandomValues(new Uint32Array(1))[0];
+function newRun(){
+  if(E&&!E.over) finishRun(E);   // an abandoned run still counts toward the bests
+  S=E=startEndless(seedNow(),E?.best||0,E?.bestCombo||0);
+  flightGen++; save(); render();
+}
+function switchMode(m){
+  try{localStorage.setItem(MODE_KEY,m)}catch(e){}
+  flightGen++; flying=[0,0,0,0,0,0]; mode=m;
+  if(m==='endless'&&(!E||E.over)) newRun();
+  S=m==='endless'?E:L;
+  render(); afterMove();   // a stuck board shows its sheet
+}
 function load(){
   let o=null;
   try{
@@ -62,20 +77,20 @@ const slots=[...document.querySelectorAll('.slot')];
 const dark=matchMedia('(prefers-color-scheme: dark)');
 let TH, themeKey, gemId=0;
 function applyTheme(){
-  const n=chapterOf(S.level).n, sc=dark.matches?'dark':'light', key=n+sc;
+  const n=S.type==='endless'?1:chapterOf(S.level).n, sc=dark.matches?'dark':'light', key=n+sc;
   if(key===themeKey) return false;
   themeKey=key; TH=chapterTheme(n);
-  const st=document.documentElement.style, L=TH[sc], set=(k,v)=>st.setProperty('--'+k,v);
-  for(const k of ['bg','ink','muted','board','well','track','sheet','accent']) set(k,L[k]);
+  const st=document.documentElement.style, C=TH[sc], set=(k,v)=>st.setProperty('--'+k,v);
+  for(const k of ['bg','ink','muted','board','well','track','sheet','accent']) set(k,C[k]);
   for(let i=0;i<5;i++){set('g'+(i+1),TH.tiles[sc][i]); set('gem'+(i+1),TH.gems[sc][i])}
   set('neutral',TH.neutral[sc]); set('rad',TH.rad); set('gloss',TH.gloss);
-  $('meta[name=theme-color]').content=L.bg;
+  $('meta[name=theme-color]').content=C.bg;
   return true;
 }
 dark.addEventListener('change',()=>{if(S&&S.color){applyTheme();if(!drag)render()}});
 // colour of a tile: normal uses its glaze; one colour uses a single glaze; pattern paints board cells by position, pieces grey
 function tileColour(v,gem,r,c,where){
-  const k=levelLook(S.level), v0=i=>gem?safeTile(TH,i,gem-1):i, gv=i=>`var(--g${v0(i)+1})`;
+  const k=S.type==='endless'?{mode:'normal'}:levelLook(S.level), v0=i=>gem?safeTile(TH,i,gem-1):i, gv=i=>`var(--g${v0(i)+1})`;
   if(k.mode==='mono') return gv(monoTile(TH,S.goal.type==='score'?[]:S.goal.targets.map(t=>t.g-1)));
   if(k.mode==='pattern'){
     if(where==='piece') return 'var(--neutral)';
@@ -100,10 +115,15 @@ function renderCell(i){
 function render(){
   applyTheme();
   for(let i=0;i<64;i++) renderCell(i);
-  $('#lvl').textContent=S.level;
-  $('#chap').textContent=t('chapter',{n:chapterOf(S.level).n});
-  const g=S.goal, bar=$('#bar'), chips=$('#gems');
-  if(g.type==='score'){
+  const g=S.goal, bar=$('#bar'), chips=$('#gems'), en=S.type==='endless';
+  $('.lvl small').hidden=en;
+  $('#lvl').textContent=en?t('endless'):S.level;
+  $('#chap').textContent=en?t('bestScore',{n:S.best}):t('chapter',{n:chapterOf(S.level).n});
+  if(en){
+    $('#goalText').textContent=t('score',{n:S.score});
+    $('#goalCount').textContent=S.combo>0?t('comboNow',{n:S.combo}):'';
+    bar.hidden=true; chips.hidden=true;
+  }else if(g.type==='score'){
     $('#goalText').textContent=t('goalScore',{n:g.need});
     $('#goalCount').textContent=`${S.score} / ${g.need}`;
     bar.hidden=false; chips.hidden=true;
@@ -113,7 +133,7 @@ function render(){
     bar.hidden=true; chips.hidden=false;
     renderChips();
   }
-  $('#hintText').textContent=S.level<=2?t('hintStart'):g.type!=='score'?t('hintGems'):'';
+  $('#hintText').textContent=en?'':S.level<=2?t('hintStart'):g.type!=='score'?t('hintGems'):'';
   renderTray();
 }
 // counters lag behind S.got while freed gems are still flying to them
@@ -226,7 +246,7 @@ function toast(text){
 }
 function placePiece(i,r,c){
   const m=resolveMove(S,i,r,c), nl=m.lines;
-  S.lines=(S.lines||0)+nl;
+  if(S.type!=='endless') S.lines=(S.lines||0)+nl;
   if(comboContinue(S,m)) earnContinue();
   if(!reduced) flyGems(m.freed);
   render();
@@ -241,7 +261,7 @@ function placePiece(i,r,c){
   if(nl){
     busy=true;
     m.cleared.forEach(k=>cellEls[k].classList.add('pop'));
-    if(S.type==='score'){   // these toasts announce bonus points, so gem levels skip them
+    if(S.type==='score'||S.type==='endless'){   // these toasts announce bonus points, so gem levels skip them
       const combo=S.combo>=2;
       if(m.fullClear) toast(t('boardClear'));
       else if(nl>1){const text=nl===2?t('double'):nl===3?t('triple'):t('lines',{n:nl}); toast(combo?t('withCombo',{text,n:S.combo}):text)}
@@ -268,6 +288,7 @@ function afterMove(){
   }
   const occ=occOf(S.color);
   if(!S.tray.some(t=>t&&anyFit(occ,SHAPES[t.s]))){
+    if(S.type==='endless') return runOver();
     const retry={label:t('tryAgain'),fn:()=>{S.fails=(S.fails||0)+1;startLevel()}};
     const free=freeContinue(S), bank=S.continues||0;
     if(!free&&!bank) return showSheet(t('lostTitle'),'',[{...retry,primary:true}]);
@@ -281,6 +302,12 @@ function afterMove(){
       retry
     ],preview);
   }
+}
+
+function runOver(){
+  finishRun(S); save(); buzz([30,60,30]);   // finishRun is idempotent, so a reload on this sheet raises nothing twice
+  showSheet(t('runOverTitle'),[t('runOverText',{n:S.score}),S.newBest&&t('newBest'),S.newCombo&&t('newBestCombo'),t('runBests',{n:S.best,c:S.bestCombo})].filter(Boolean).join(' '),
+    [{label:t('newRun'),primary:true,fn:newRun},{label:t('levels'),fn:()=>switchMode('levels')}]);
 }
 
 /* ---------- sheet & menu ---------- */
@@ -310,8 +337,15 @@ async function share(){
   }catch(e){if(e.name!=='AbortError') showSheet(t('share'),url,[{label:t('keepPlaying'),primary:true}],null,true)}   // cancelled share: nothing to say
 }
 function openMenu(){
+  if(mode==='endless') return showSheet(t('menuEndless'),[t('statBestScore',{n:S.best}),t('statBestCombo',{n:S.bestCombo})].join('\n'),[
+    {label:t('keepPlaying'),primary:true},
+    {label:t('levels'),fn:()=>switchMode('levels')},
+    {label:t('newRun'),fn:newRun},
+    {label:t('info'),fn:openInfo}
+  ],null,true);
   showSheet(t('menuTitle',{n:S.level}),[t('statBest',{n:S.best||S.level}),t('statLines',{n:S.lines||0}),t('statContinues',{n:S.continues||0})].join('\n'),[
     {label:t('keepPlaying'),primary:true},
+    {label:t('endless'),fn:()=>switchMode('endless')},
     {label:t('newLayout'),fn:()=>{S.salt=(S.salt||0)+1;startLevel()}},
     {label:t('startOver'),fn:()=>showSheet(t('startOverTitle'),t('startOverText'),[
       {label:t('startOverConfirm'),primary:true,fn:()=>{S.level=1;S.fails=0;S.salt=0;startLevel()}},
@@ -337,8 +371,8 @@ function openInfo(){
   er.className='pick'; er.append(t('easierRetries'),cb);
   cb.addEventListener('change',()=>{
     easy=cb.checked; try{localStorage.setItem(EASY_KEY,easy?'on':'off')}catch(e){}
-    const L=makeLevel(S.level,S.fails,S.salt,S.type,easy); S.goal=L.goal; S.d=L.d;   // same layout, only targets and piece sizes change
-    save(); render(); if(won(S)) afterMove();
+    const m=makeLevel(L.level,L.fails,L.salt,L.type,easy); L.goal=m.goal; L.d=m.d;   // same layout, only targets and piece sizes change
+    save(); if(mode==='levels'){render(); if(won(S)) afterMove()}   // never touches an endless run
   });
   const ver=Object.assign(document.createElement('small'),{className:'ver',textContent:t('version',{v:BUILD})});   // which deploy runs
   box.insertBefore(repo,back); box.insertBefore(row,back); box.insertBefore(er,back); box.append(ver);
@@ -349,6 +383,9 @@ $('#menuBtn').addEventListener('click',()=>{if(!busy&&!drag) openMenu()});
 // No zoom: iOS ignores user-scalable=no, so block Safari's pinch gestures (double-tap is off via touch-action)
 for(const ev of ['gesturestart','gesturechange']) document.addEventListener(ev,e=>e.preventDefault());
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});   // offline play
-S=load();
-if(S&&S.color){render();afterMove()}
-else{S=S||{level:1,fails:0,salt:0,best:1,lines:0};startLevel()}
+L=load(); hadSave=!!L;   // hadSave: a level or old v1 save existed before this launch
+E=loadEndless();
+try{if(localStorage.getItem(MODE_KEY)==='endless'&&E) mode='endless'}catch(e){}
+if(!(L&&L.color)){L=L||{level:1,fails:0,salt:0,best:1,lines:0}; Object.assign(L,startState(L.level,L.fails,L.salt,undefined,easy)); save()}
+S=mode==='endless'?E:L;
+render(); afterMove();
