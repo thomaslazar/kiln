@@ -19,7 +19,8 @@ Read before changing behaviour:
 ## Files
 
 - `index.html`: markup and PWA meta. `style.css`: all styles.
-- `src/core.js`: all game rules, pure (no DOM, no storage). Tested in `tests/core.test.mjs`.
+- `src/core.js`: all game rules, pure (no DOM, no storage). Tested in `tests/core.test.mjs`; endless rules in
+  `tests/endless.test.mjs`.
 - `src/theme.js`: pure chapter looks (no DOM). Tested in `tests/theme.test.mjs`; chapters and
   looks in `tests/chapters.test.mjs`.
 - `src/ui.js`: language, state, saving, rendering, drag input, animations, sheets.
@@ -113,7 +114,7 @@ Sections are marked `/* ---------- name ---------- */`.
   empty, `afterMove` checks win and loss. Bonus toasts only in score levels.
 - Sheets: `showSheet(title, text, buttons, extra, dismiss)`; `dismiss` sheets (menu, Info,
   start-over question, share fallback) close on a tap outside or Escape, win and loss
-  sheets never do. Menu: keep playing, new layout, start over, Info. `openInfo()` holds
+  sheets never do. Menu: keep playing, Endless/Levels switch, new layout, start over, Info (in Endless: New run instead of new layout, no start over). `openInfo()` holds
   "Share Kiln", the GitHub link, the language dropdown, the "easier retries" checkbox
   (`localStorage['kiln-easy']`, default on; toggling rebuilds the current goal and `S.d`
   via `makeLevel` with the same seed, so layout and progress stay, then checks for a win)

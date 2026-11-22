@@ -103,14 +103,14 @@ The “No room left” sheet shows the three rescue pieces first, so the choice 
   not touch the bank.
 - The menu shows how many continues the player has.
 
-## Scoring (score levels only)
+## Scoring (score levels and Endless)
 
 - 1 point per cell placed.
 - Lines cleared in one move: 1 = 10, 2 = 30, 3 = 60, 4 = 100 (`10 * n * (n + 1) / 2`).
 - Combo: each move that clears raises the combo by 1 and multiplies that move’s line
   points. Two moves without a clear keep the combo; the third resets it.
 - Board clear: +300.
-- The “Double”, “Triple”, “Combo” and “Board clear” messages only show in score levels,
+- The “Double”, “Triple”, “Combo” and “Board clear” messages only show in score levels and Endless,
   because they announce bonus points.
 
 ## Endless

@@ -302,7 +302,7 @@ export function startEndless(seed,best=0,bestCombo=0){
 }
 export function finishRun(E){
   if(E.over)return E;
-  E.newBest=E.score>E.best;E.newCombo=E.top>E.bestCombo;
+  E.newBest=E.best>0&&E.score>E.best;E.newCombo=E.bestCombo>0&&E.top>E.bestCombo;
   E.best=Math.max(E.best,E.score);E.bestCombo=Math.max(E.bestCombo,E.top);E.over=true;
   return E;
 }

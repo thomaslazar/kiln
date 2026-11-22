@@ -37,6 +37,11 @@ test('finishRun raises bests once and flags them', () => {
   assert.equal(E.best, 150); assert.equal(E.bestCombo, 5); assert.equal(E.newBest, true); assert.equal(E.newCombo, false); assert.equal(E.over, true);
   E.score = 999; finishRun(E); assert.equal(E.best, 150);
 });
+test('a first run is never flagged as a new best but still raises the bests', () => {
+  const E = startEndless(7); E.score = 50; E.top = 2;
+  finishRun(E);
+  assert.equal(E.newBest, false); assert.equal(E.newCombo, false); assert.equal(E.best, 50); assert.equal(E.bestCombo, 2);
+});
 test('validEndless accepts a fresh or finished run and rejects broken ones', () => {
   const E = startEndless(5);
   assert.ok(validEndless(JSON.parse(JSON.stringify(E))));

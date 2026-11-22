@@ -305,7 +305,7 @@ function afterMove(){
 }
 
 function runOver(){
-  finishRun(S); save(); buzz([30,60,30]);   // finishRun is idempotent, so a reload on this sheet raises nothing twice
+  const fresh=!S.over; finishRun(S); save(); if(fresh) buzz([30,60,30]);   // a reload on this sheet raises and buzzes nothing twice
   showSheet(t('runOverTitle'),[t('runOverText',{n:S.score}),S.newBest&&t('newBest'),S.newCombo&&t('newBestCombo'),t('runBests',{n:S.best,c:S.bestCombo})].filter(Boolean).join(' '),
     [{label:t('newRun'),primary:true,fn:newRun},{label:t('levels'),fn:()=>switchMode('levels')}]);
 }
@@ -394,10 +394,10 @@ if(!(L&&L.color)){L=L||{level:1,fails:0,salt:0,best:1,lines:0}; Object.assign(L,
 S=mode==='endless'?E:L;
 render(); afterMove();
 // one-time welcome card: new players pick a mode, existing players hear about Endless
-let seen=false; try{seen=!!localStorage.getItem(WELCOME_KEY); localStorage.setItem(WELCOME_KEY,'1')}catch(e){}
+let seen=false; try{seen=!!localStorage.getItem(WELCOME_KEY)}catch(e){}
 if(!seen){
-  const card=()=>hadSave
+  const card=()=>{try{localStorage.setItem(WELCOME_KEY,'1')}catch(e){}; return hadSave
     ?showSheet(t('newModeTitle'),t('newModeText'),[{label:t('tryIt'),primary:true,fn:()=>switchMode('endless')},{label:t('later')}],null,true)
-    :showSheet(t('welcomeTitle'),t('welcomeText'),[{label:t('levels'),primary:true,fn:()=>switchMode('levels')},{label:t('endless'),fn:()=>switchMode('endless')}]);
+    :showSheet(t('welcomeTitle'),t('welcomeText'),[{label:t('levels'),primary:true,fn:()=>switchMode('levels')},{label:t('endless'),fn:()=>switchMode('endless')}])};
   if(sheetOpen) afterSheet=card; else card();
 }
