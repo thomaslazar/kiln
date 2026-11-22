@@ -44,5 +44,6 @@
   "sourceCode": "Source code on GitHub",
   "back": "Back",
   "turnPhone": "Turn your phone upright to play.",
-  "easierRetries": "Easier after 4 failed tries"
+  "easierRetries": "Easier after 4 failed tries",
+  "version": "Version {v}"
 }

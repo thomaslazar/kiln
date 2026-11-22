@@ -44,5 +44,6 @@
   "sourceCode": "Quellcode auf GitHub",
   "back": "Zurück",
   "turnPhone": "Dreh dein Handy hochkant, um zu spielen.",
-  "easierRetries": "Leichter nach 4 Fehlversuchen"
+  "easierRetries": "Leichter nach 4 Fehlversuchen",
+  "version": "Version {v}"
 }

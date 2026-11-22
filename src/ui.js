@@ -1,6 +1,7 @@
 import {N,SHAPES,chapterOf,makeLevel,levelLook,occOf,fits,fullLines,anyFit,startState,deal,resolveMove,clearCells,won,fromV1,validSave,
   rescueTray,comboContinue,levelContinue,freeContinue} from './core.js';
 import {chapterTheme,safeTile,monoTile,patternPos,patternColour,symbolSVG} from './theme.js';
+import {BUILD} from './build.js';
 
 const KEY = 'kiln-v2', OLD = 'kiln-v1';
 const $ = s => document.querySelector(s);
@@ -339,7 +340,8 @@ function openInfo(){
     const L=makeLevel(S.level,S.fails,S.salt,S.type,easy); S.goal=L.goal; S.d=L.d;   // same layout, only targets and piece sizes change
     save(); render(); if(won(S)) afterMove();
   });
-  box.insertBefore(repo,back); box.insertBefore(row,back); box.insertBefore(er,back);
+  const ver=Object.assign(document.createElement('small'),{className:'ver',textContent:t('version',{v:BUILD})});   // which deploy runs
+  box.insertBefore(repo,back); box.insertBefore(row,back); box.insertBefore(er,back); box.append(ver);
 }
 $('#menuBtn').addEventListener('click',()=>{if(!busy&&!drag) openMenu()});
 

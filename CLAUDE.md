@@ -35,8 +35,10 @@ Read before changing behaviour:
 - `icons/og.png` (1200 x 630): link preview card for chat apps (Open Graph and `twitter:card`
   tags in `index.html`, absolute URLs): icon, name, tagline and `docs/screenshot.png`, rendered
   from an HTML mockup with headless Chromium. Not in `SHELL`.
+- `src/build.js`: build stamp, `'dev'` locally; the deploy writes the short commit hash, shown
+  at the bottom of Info (`version`).
 - `.github/workflows/pages.yml`: runs `node --test` on pull requests and pushes; on push to
-  `master` it then deploys the site files to https://thomaslazar.github.io/kiln/. New site
+  `master` it then stamps `src/build.js` and deploys the site files to https://thomaslazar.github.io/kiln/. New site
   files must be added to its copy step and, if needed offline, to `SHELL` in `sw.js`.
 - `.github/pull_request_template.md`: checklist, including one for translations.
 - `docs/superpowers/`: the original spec and plan for level types, gems and score.
