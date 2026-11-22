@@ -59,5 +59,11 @@
   "runOverText": "{n} points.",
   "newBest": "New best score!",
   "newBestCombo": "New best combo!",
-  "runBests": "Best score {n}, best combo {c}."
+  "runBests": "Best score {n}, best combo {c}.",
+  "welcomeTitle": "Welcome to Kiln",
+  "welcomeText": "Levels: a small goal on every board, one level after another. Endless: one board, no goal, just your best score. You can switch any time in the ⋯ menu.",
+  "newModeTitle": "New: Endless",
+  "newModeText": "One board, no goal, just your best score and combos. Your levels stay as they are. Find it any time in the ⋯ menu.",
+  "tryIt": "Try it",
+  "later": "Later"
 }

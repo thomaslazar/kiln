@@ -9,7 +9,7 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- language ---------- */
 // Texts live in lang/<code>.json; lang/languages.json lists them. Missing keys fall back to English.
-const LANG_KEY = 'kiln-lang', EASY_KEY = 'kiln-easy';
+const WELCOME_KEY = 'kiln-welcome', LANG_KEY = 'kiln-lang', EASY_KEY = 'kiln-easy';
 let easy = true;   // easier retries: fails from the 4th lower targets
 try{ easy = localStorage.getItem(EASY_KEY) !== 'off'; }catch(e){}
 const getJSON = f => fetch(f).then(r => r.json());
@@ -325,7 +325,11 @@ function showSheet(title,text,buttons,extra,dismiss=false){
   $('#sheet').hidden=false;
   box.firstElementChild&&box.firstElementChild.focus({preventScroll:true});
 }
-function hideSheet(){$('#sheet').hidden=true;sheetOpen=false}
+let afterSheet=null;   // a card queued behind the sheet that is open
+function hideSheet(){
+  $('#sheet').hidden=true;sheetOpen=false;
+  setTimeout(()=>{if(!sheetOpen&&afterSheet){const f=afterSheet;afterSheet=null;f()}});
+}
 $('#sheet').addEventListener('click',e=>{if(e.target===e.currentTarget&&sheetDismiss) hideSheet()});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetOpen&&sheetDismiss) hideSheet()});
 // The phone's share menu where there is one, otherwise copy the link.
@@ -389,3 +393,11 @@ try{if(localStorage.getItem(MODE_KEY)==='endless'&&E) mode='endless'}catch(e){}
 if(!(L&&L.color)){L=L||{level:1,fails:0,salt:0,best:1,lines:0}; Object.assign(L,startState(L.level,L.fails,L.salt,undefined,easy)); save()}
 S=mode==='endless'?E:L;
 render(); afterMove();
+// one-time welcome card: new players pick a mode, existing players hear about Endless
+let seen=false; try{seen=!!localStorage.getItem(WELCOME_KEY); localStorage.setItem(WELCOME_KEY,'1')}catch(e){}
+if(!seen){
+  const card=()=>hadSave
+    ?showSheet(t('newModeTitle'),t('newModeText'),[{label:t('tryIt'),primary:true,fn:()=>switchMode('endless')},{label:t('later')}],null,true)
+    :showSheet(t('welcomeTitle'),t('welcomeText'),[{label:t('levels'),primary:true,fn:()=>switchMode('levels')},{label:t('endless'),fn:()=>switchMode('endless')}]);
+  if(sheetOpen) afterSheet=card; else card();
+}

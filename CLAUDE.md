@@ -123,6 +123,15 @@ Sections are marked `/* ---------- name ---------- */`.
 - Continues: every reward calls `earnContinue()`. On a loss with a free or banked
   continue, `afterMove` previews `rescueTray(S)` in `#sheetExtra` (via `showSheet`'s 4th
   argument) next to "Try again".
+- Modes: `L` is the levels state (`kiln-v2`), `E` the endless state or null (`kiln-endless`),
+  `mode` the current one (`kiln-mode`), `S` the live state (`L` or `E`). `switchMode(m)`
+  switches (starts a run if none or over), `newRun()` abandons the run (it still counts
+  toward the bests). The menu has a switch entry; in endless "New run" replaces New layout
+  and Start over is hidden. Each run keeps its own `E.chapter` and `E.look`. When no piece
+  fits, `runOver()` shows the Run over sheet (score, bests; New run / Levels), no continues.
+- Welcome: `kiln-welcome` is set on the first launch. No save (`hadSave` false): choice card
+  Levels / Endless, not dismissable. Else "New: Endless" (Try it / Later, dismissable). If a
+  sheet is open at boot the card waits in `afterSheet`, which `hideSheet()` runs.
 - Reduced motion: no flights, toasts show statically.
 - No zoom: viewport `maximum-scale=1, user-scalable=no`, `touch-action:none` on `body`
   (no double-tap zoom), and Safari `gesturestart`/`gesturechange` are cancelled (iOS ignores

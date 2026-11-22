@@ -59,5 +59,11 @@
   "runOverText": "{n} Punkte.",
   "newBest": "Neuer Bestwert!",
   "newBestCombo": "Neue beste Kombo!",
-  "runBests": "Bestwert {n}, beste Kombo {c}."
+  "runBests": "Bestwert {n}, beste Kombo {c}.",
+  "welcomeTitle": "Willkommen bei Kiln",
+  "welcomeText": "Level: ein kleines Ziel auf jedem Brett, ein Level nach dem anderen. Endlos: ein Brett, kein Ziel, nur dein Bestwert. Du kannst jederzeit im ⋯ Menü wechseln.",
+  "newModeTitle": "Neu: Endlos",
+  "newModeText": "Ein Brett, kein Ziel, nur dein Bestwert und deine Kombos. Deine Level bleiben, wie sie sind. Du findest den Modus jederzeit im ⋯ Menü.",
+  "tryIt": "Ausprobieren",
+  "later": "Später"
 }

@@ -113,6 +113,26 @@ The “No room left” sheet shows the three rescue pieces first, so the choice 
 - The “Double”, “Triple”, “Combo” and “Board clear” messages only show in score levels,
   because they announce bonus points.
 
+## Endless
+
+A second mode next to the levels: one board, no goal, no level numbers, chapters or gems.
+
+- The run starts on an empty board. Pieces are dealt fairly at a flat difficulty (0.75).
+- Scoring is as in score levels (see Scoring), including the bonus messages.
+- A run is never won. It ends when no piece in the tray fits; the “Run over” sheet shows the
+  score, the best score and the best combo, and offers “New run” or “Levels”.
+- Best score and best combo are kept across runs. Abandoning a run (“New run”) still counts
+  its score toward the best.
+- No continues: none are earned, banked or offered in Endless.
+- Each run draws its own chapter look (any chapter) and level look (normal, one colour or
+  pattern) and keeps them for the whole run.
+- Switching: the menu has one entry, “Endless” in levels and “Levels” in Endless. The game
+  opens in the mode last played, and each mode resumes its own board. In Endless, “New
+  layout” becomes “New run” and “Start over” is hidden. Levels are never touched.
+- Welcome cards, once per device: new players choose Levels or Endless (no tap-outside
+  dismiss); existing players get “New: Endless” with “Try it” or “Later”. If a stuck level
+  board shows its loss sheet at launch, the card comes after it.
+
 ## Visual design
 
 Glazed ceramic tiles on a cool stone board, light and dark themes, with a generated look
