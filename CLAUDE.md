@@ -32,6 +32,9 @@ Read before changing behaviour:
   the top of `style.css`. No third-party requests anywhere.
 - `manifest.webmanifest`, `sw.js`, `icons/`: PWA. `icons/icon.svg` is the source; the PNGs
   are renders of it (192, 512, maskable 512 at 80% scale, 180 for Apple).
+- `icons/og.png` (1200 x 630): link preview card for chat apps (Open Graph and `twitter:card`
+  tags in `index.html`, absolute URLs): icon, name, tagline and `docs/screenshot.png`, rendered
+  from an HTML mockup with headless Chromium. Not in `SHELL`.
 - `.github/workflows/pages.yml`: runs `node --test` on pull requests and pushes; on push to
   `master` it then deploys the site files to https://thomaslazar.github.io/kiln/. New site
   files must be added to its copy step and, if needed offline, to `SHELL` in `sw.js`.
