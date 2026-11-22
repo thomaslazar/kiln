@@ -33,6 +33,7 @@ test('rescue tray fits and clears at least 2 lines on stuck boards', () => {
     const t0 = Date.now(), tray = rescueTray(S), ms = Date.now() - t0;
     assert.equal(tray.length, 3);
     tray.forEach(p => assert.equal(p.g.length, SHAPES[p.s].n));
+    tray.forEach(p => assert.ok(anyFit(o, SHAPES[p.s]), `level ${lv}: piece ${p.s} does not fit when dealt`));
     assert.ok(bestLines(o, tray) >= 2, `level ${lv}: ${bestLines(o, tray)} lines`);
     assert.ok(ms < 200, `took ${ms} ms`);
   }
@@ -60,5 +61,13 @@ test('one free continue per level after 2 fails', () => {
   const S = { ...startState(12, 0, 0), level: 12 };   // the UI keeps level next to the start state
   for (const [fails, freeLevel, want] of [[1, 0, false], [2, 0, true], [3, 0, true], [3, 12, false], [2, 11, true]]) {
     S.fails = fails; S.freeLevel = freeLevel; assert.equal(freeContinue(S), want, `fails ${fails} free ${freeLevel}`);
+  }
+});
+test('rescue pieces all fit the board they are offered on', () => {
+  const rows = '10000110' + '10001101' + '11011101' + '11111101' + '11011000' + '10011111' + '11000000' + '01010111';
+  for (const lv of [3, 20, 60, 90]) {
+    const S = stuck(lv); S.color = [...rows].map(c => +c);
+    const o = occOf(S.color);
+    for (const p of rescueTray(S)) assert.ok(anyFit(o, SHAPES[p.s]), `level ${lv}: piece ${p.s} does not fit when offered`);
   }
 });

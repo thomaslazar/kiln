@@ -10,7 +10,7 @@ another, each with a small goal.
    font, comes from the game’s own site.
 2. Endless levels, one after another, each with a small goal.
 3. Fairness: losing should come from the player’s moves, never from the piece dice.
-   Every tray of three pieces can be placed in some order.
+   Every tray of three pieces can be placed in some order, and each piece fits the board when it is dealt.
 4. Nobody gets stuck on one level. Help comes in steps: continues are always on offer
    when a player has one, a free continue arrives after 2 fails, and from the 4th failed
    attempt on each retry has targets 10% lower (of the original), down to at most 60%,
@@ -92,7 +92,7 @@ When no piece fits, the player can use a continue instead of starting the level 
 The “No room left” sheet shows the three rescue pieces first, so the choice is informed;
 “Try again” is always there and never costs anything.
 
-- A continue swaps the stuck tray for three rescue pieces. Board, score and gems stay.
+- A continue swaps the stuck tray for three rescue pieces, each of which fits the board as offered. Board, score and gems stay.
   The rescue pieces are found by search so that they can clear at least 2 lines (as many
   as possible on a hopeless board). The sheet does not promise this.
 - Continues bank up with no cap and can be used one after another.

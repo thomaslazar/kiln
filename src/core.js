@@ -208,6 +208,7 @@ export function deal(S){
   for(let a=0;a<40;a++){
     const set=[pick(),pick(),pick()];
     if(wantClear&&a<25&&!set.some(i=>canClear(occ,SHAPES[i]))) continue;
+    if(!set.every(i=>anyFit(occ,SHAPES[i]))) continue;   // no piece arrives greyed out
     if(!solvable(occ,set,25000)) continue;
     return tray(set);
   }
@@ -226,9 +227,10 @@ export function rescueTray(S){
   const rng=dealRng(S);
   const fullness=o=>{let s=0;for(let i=0;i<N;i++){let r=0,c=0;for(let j=0;j<N;j++){r+=o[i*N+j];c+=o[j*N+i]}s+=r*r+c*c}return s};
   let best=null;
+  const start=occOf(S.color),ok=SHAPES.map(s=>anyFit(start,s));   // every rescue piece fits when offered
   const rec=(o,set,lines)=>{
     const moves=[];
-    if(set.length<3) SHAPES.forEach((s,i)=>{for(let r=0;r<=N-s.h;r++)for(let c=0;c<=N-s.w;c++){
+    if(set.length<3) SHAPES.forEach((s,i)=>{if(ok[i])for(let r=0;r<=N-s.h;r++)for(let c=0;c<=N-s.w;c++){
       if(!fits(o,s,r,c)) continue;
       const n=o.slice();for(const [dr,dc] of s.cells) n[(r+dr)*N+c+dc]=1;
       const f=fullLines(n),l=f.rows.length+f.cols.length;
@@ -242,7 +244,7 @@ export function rescueTray(S){
     moves.sort((a,b)=>b.h-a.h);
     for(const m of moves.slice(0,6)) rec(m.o,[...set,m.i],lines+m.l);
   };
-  rec(occOf(S.color),[],0);
+  rec(start,[],0);
   return gemTray(S,rng,best.set);
 }
 export const comboContinue=(S,m)=>S.type==='score'&&m.lines>0&&S.combo>0&&S.combo%10===0;   // every 10 in a streak

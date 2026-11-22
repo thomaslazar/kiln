@@ -211,3 +211,13 @@ test('validSave rejects bad goals and non-finite numbers', () => {
   assert.ok(!validSave({ ...S, score: 'x' }));
   assert.ok(!validSave({ ...S, fails: undefined }));
 });
+import { anyFit, startEndless } from '../src/core.js';
+test('every dealt piece fits the board on its own', () => {
+  // owner's board: only one L position, the second L fitted only after a clear
+  const rows = '10000110' + '10001101' + '11011101' + '11111101' + '11011000' + '10011111' + '11000000' + '01010111';
+  for (let seed = 1; seed <= 200; seed++) {
+    const E = startEndless(seed); E.color = [...rows].map(c => +c);
+    const occ = occOf(E.color);
+    for (let k = 0; k < 3; k++) for (const p of deal(E)) assert.ok(anyFit(occ, SHAPES[p.s]), `seed ${seed}: piece ${p.s} does not fit`);
+  }
+});

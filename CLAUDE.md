@@ -72,13 +72,13 @@ Sections are marked `/* ---------- name ---------- */`.
   the level only (raw split 62/19/19, about 72/14/14 after the no-two-specials rule).
 - **fair dealing**: `weightFor` (size by fill and `d`, filler only above 45% fill, 3x3
   doubled), `activeGems(S)`, `deal(S)` (three pieces `{s, c, g}`, `g[j]` = gem per cell;
-  always passes `solvable`; fallbacks to small pieces, then three singles; gem levels
+  always passes `solvable` and every piece passes `anyFit` on the board it is dealt for; fallbacks to small pieces, then three singles; gem levels
   never deal a tray without gems while a colour is open). `startState(level, fails, salt,
   type)` builds a fresh level state with its first tray.
 - **moves**: `linePoints(n)`, `resolveMove(S, i, r, c)` places, finds lines, updates
   score, combo, idle and `got`, and returns `{placed, cleared, freed, lines, points,
   fullClear}` without emptying cells; `clearCells(S, cells)` empties them; `won(S)`.
-- **continues**: `rescueTray(S)` beam-searches three pieces that clear the most lines
+- **continues**: `rescueTray(S)` beam-searches three pieces (each fits the board as offered) that clear the most lines
   (2+ on stuck boards) and adds gems via `gemTray`, the same helper `deal` uses.
   `comboContinue(S, m)`, `levelContinue(level, best)`, `freeContinue(S)` are the earn and
   offer rules. `S.continues` (bank, kept across levels) and `S.freeLevel` (level whose free
