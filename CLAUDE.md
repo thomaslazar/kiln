@@ -111,7 +111,7 @@ Sections are marked `/* ---------- name ---------- */`.
   rounded cell under its top-left.
 - `placePiece`: `resolveMove`, freed gems fly to their chips (`flyGems`, at most 8, chip
   counts lag via `flying[]`), clears animate 300 ms, then `clearCells`, new tray when
-  empty, `afterMove` checks win and loss. Bonus toasts only in score levels.
+  empty, `afterMove` checks win and loss. Bonus toasts only in score levels and Endless.
 - Sheets: `showSheet(title, text, buttons, extra, dismiss)`; `dismiss` sheets (menu, Info,
   start-over question, share fallback) close on a tap outside or Escape, win and loss
   sheets never do. Menu: keep playing, Endless/Levels switch, new layout, start over, Info (in Endless: New run instead of new layout, no start over). `openInfo()` holds
