@@ -82,6 +82,9 @@ Sections are marked `/* ---------- name ---------- */`.
   `comboContinue(S, m)`, `levelContinue(level, best)`, `freeContinue(S)` are the earn and
   offer rules. `S.continues` (bank, kept across levels) and `S.freeLevel` (level whose free
   continue was used) are optional in saves.
+- **endless**: `startEndless(seed, best, bestCombo)` is an empty board at `d` 0.75, no gems, look
+  (chapter 1..50, mode, pattern) from the seed alone. `resolveMove` keeps `top` (best combo of the
+  run); `finishRun(E)` raises `best`/`bestCombo` once; `validEndless(s)` checks a save.
 - **saves**: `fromV1(old)` keeps `level, best, lines`; `validSave(s)` checks a v2 save.
 
 ## UI (`src/ui.js`)

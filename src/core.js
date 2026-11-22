@@ -180,7 +180,7 @@ function weightFor(s,d,fill){
   const w=cat==='s'||cat==='x'?2-1.1*d+4*crowd:cat==='m'?2.2:.5+1.1*d-2.2*crowd;
   return Math.max(.05,w)*s.share*(s.fam===7?2:1);   // 3x3 doubled: the most satisfying drop
 }
-export const activeGems=S=>S.goal.type==='score'?[]:S.goal.targets.filter(t=>S.got[t.g]<t.need).map(t=>t.g);
+export const activeGems=S=>!S.goal.targets?[]:S.goal.targets.filter(t=>S.got[t.g]<t.need).map(t=>t.g);
 const dealRng=S=>mulberry32(hash(S.seed^Math.imul(++S.deals,2654435761)));
 // Turns shape indices into tray pieces with colours and the level's gems.
 function gemTray(S,rng,set){
@@ -270,11 +270,12 @@ export function resolveMove(S,i,r,c){
     fullClear=S.color.every((v,k)=>!v||cleared.has(k));
     if(fullClear)points+=300;
   }else if(++S.idle>=3)S.combo=0;
+  if(S.type==='endless')S.top=Math.max(S.top,S.combo);
   S.score+=points;
   return {placed,cleared:[...cleared],freed,lines,points,fullClear};
 }
 export function clearCells(S,cells){for(const k of cells)S.color[k]=S.gem[k]=0}
-export const won=S=>S.goal.type==='score'?S.score>=S.goal.need:S.goal.targets.every(t=>S.got[t.g]>=t.need);
+export const won=S=>S.goal.type==='endless'?false:S.goal.type==='score'?S.score>=S.goal.need:S.goal.targets.every(t=>S.got[t.g]>=t.need);
 
 /* ---------- saves ---------- */
 const int=(v,d)=>Number.isInteger(v)&&v>=0?v:d;
@@ -286,5 +287,29 @@ export function validSave(s){
   if(s.type==='score'){ if(!F(g.need)) return false; }
   else if(!Array.isArray(g.targets)||!g.targets.length||!g.targets.every(t=>t&&Number.isInteger(t.g)&&t.g>=1&&t.g<=5&&F(t.need)&&t.need>=1)) return false;
   if(!Array.isArray(s.got)||s.got.length!==6||!Array.isArray(s.tray)||s.tray.length!==3) return false;
-  return s.tray.every(t=>t===null||(t&&Number.isInteger(t.s)&&t.s>=0&&t.s<SHAPES.length&&Array.isArray(t.g)&&t.g.length===SHAPES[t.s].n));
+  return validTray(s.tray);
+}
+const validTray=t=>Array.isArray(t)&&t.length===3&&t.every(p=>p===null||(p&&Number.isInteger(p.s)&&p.s>=0&&p.s<SHAPES.length&&Array.isArray(p.g)&&p.g.length===SHAPES[p.s].n));
+const PATTERNS=['rows','columns','diagonal','rings'];
+// Endless run: empty board, d fixed at 0.75, look picked from the seed alone.
+export function startEndless(seed,best=0,bestCombo=0){
+  const r=hash(seed*53+7)%100,mode=r<70?'normal':r<85?'mono':'pattern';
+  const E={type:'endless',goal:{type:'endless'},color:new Array(64).fill(0),gem:new Array(64).fill(0),got:[0,0,0,0,0,0],
+    score:0,combo:0,idle:0,deals:0,seed,d:.75,chapter:1+hash(seed*13+1)%50,
+    look:{mode,pattern:mode==='pattern'?PATTERNS[hash(seed*71+3)%4]:null},best,bestCombo,top:0,over:false};
+  E.tray=deal(E);
+  return E;
+}
+export function finishRun(E){
+  if(E.over)return E;
+  E.newBest=E.score>E.best;E.newCombo=E.top>E.bestCombo;
+  E.best=Math.max(E.best,E.score);E.bestCombo=Math.max(E.bestCombo,E.top);E.over=true;
+  return E;
+}
+export function validEndless(s){
+  if(!s||s.type!=='endless'||!s.goal||s.goal.type!=='endless'||!Array.isArray(s.color)||s.color.length!==64||!Array.isArray(s.gem)||s.gem.length!==64) return false;
+  if(![s.score,s.combo,s.idle,s.seed,s.deals,s.d,s.best,s.bestCombo,s.top].every(Number.isFinite)||!Number.isInteger(s.chapter)||s.chapter<1||s.chapter>50) return false;
+  const l=s.look;
+  if(!l||!['normal','mono','pattern'].includes(l.mode)||!(l.pattern===null||PATTERNS.includes(l.pattern))) return false;
+  return Array.isArray(s.got)&&s.got.length===6&&validTray(s.tray);
 }
