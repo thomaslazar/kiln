@@ -62,7 +62,7 @@
   "runBests": "Best score {n}, best combo {c}.",
   "welcomeTitle": "Welcome to Kiln",
   "welcomeText": "Levels: a small goal on every board, one level after another.\n\nEndless: one board, no goal, just your best score.\n\nYou can switch any time in the ⋯ menu.",
-  "newModeTitle": "New: Endless",
+  "newModeTitle": "New game mode: Endless",
   "newModeText": "One board, no goal, just your best score and combos. Your levels stay as they are.\n\nFind it any time in the ⋯ menu.",
   "tryIt": "Try it",
   "later": "Later"

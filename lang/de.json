@@ -62,7 +62,7 @@
   "runBests": "Bestwert {n}, beste Kombo {c}.",
   "welcomeTitle": "Willkommen bei Kiln",
   "welcomeText": "Level: ein kleines Ziel auf jedem Brett, ein Level nach dem anderen.\n\nEndlos: ein Brett, kein Ziel, nur dein Bestwert.\n\nDu kannst jederzeit im ⋯-Menü wechseln.",
-  "newModeTitle": "Neu: Endlos",
+  "newModeTitle": "Neuer Spielmodus: Endlos",
   "newModeText": "Ein Brett, kein Ziel, nur dein Bestwert und deine Kombos. Deine Level bleiben, wie sie sind.\n\nDu findest den Modus jederzeit im ⋯-Menü.",
   "tryIt": "Ausprobieren",
   "later": "Später"
