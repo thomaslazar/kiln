@@ -77,7 +77,7 @@ const slots=[...document.querySelectorAll('.slot')];
 const dark=matchMedia('(prefers-color-scheme: dark)');
 let TH, themeKey, gemId=0;
 function applyTheme(){
-  const n=S.type==='endless'?1:chapterOf(S.level).n, sc=dark.matches?'dark':'light', key=n+sc;
+  const n=S.type==='endless'?S.chapter:chapterOf(S.level).n, sc=dark.matches?'dark':'light', key=n+sc;
   if(key===themeKey) return false;
   themeKey=key; TH=chapterTheme(n);
   const st=document.documentElement.style, C=TH[sc], set=(k,v)=>st.setProperty('--'+k,v);
@@ -90,8 +90,8 @@ function applyTheme(){
 dark.addEventListener('change',()=>{if(S&&S.color){applyTheme();if(!drag)render()}});
 // colour of a tile: normal uses its glaze; one colour uses a single glaze; pattern paints board cells by position, pieces grey
 function tileColour(v,gem,r,c,where){
-  const k=S.type==='endless'?{mode:'normal'}:levelLook(S.level), v0=i=>gem?safeTile(TH,i,gem-1):i, gv=i=>`var(--g${v0(i)+1})`;
-  if(k.mode==='mono') return gv(monoTile(TH,S.goal.type==='score'?[]:S.goal.targets.map(t=>t.g-1)));
+  const k=S.type==='endless'?S.look:levelLook(S.level), v0=i=>gem?safeTile(TH,i,gem-1):i, gv=i=>`var(--g${v0(i)+1})`;
+  if(k.mode==='mono') return gv(monoTile(TH,S.goal.targets?S.goal.targets.map(t=>t.g-1):[]));
   if(k.mode==='pattern'){
     if(where==='piece') return 'var(--neutral)';
     const pos=patternPos(k.pattern,r,c);
